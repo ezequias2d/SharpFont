@@ -166,20 +166,20 @@ namespace Examples
 			ClearStatus();
 			pictureBoxText.BackColor = backColor;
 			panel1.BackColor = backColor;
-			try
-			{
+			//try
+			//{
 				pictureBoxText.Image = fontService.RenderString(sampleText, foreColor, backColor);
 				ClearStatus();
 				if (pictureBoxText.Image == null)
 				{
 					ShowInfo("Nothing was rendered. Perhaps the selected font doesn't include the characters you need.");
 				}
-			}
-			catch (Exception ex)
-			{
-				ShowException(ex);
-				pictureBoxText.Image = null;
-			}
+			//}
+			//catch (Exception ex)
+			//{
+			//	ShowException(ex);
+			//	pictureBoxText.Image = null;
+			//}
 			pictureBoxText.Visible = pictureBoxText.Image != null;
 		}
 
