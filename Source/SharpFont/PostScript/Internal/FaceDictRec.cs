@@ -25,11 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using SharpFont.Internal;
-
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.PostScript.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -38,9 +33,9 @@ namespace SharpFont.PostScript.Internal
 		internal PrivateRec private_dict;
 
 		internal uint len_buildchar;
-		internal FT_Long forcebold_threshold;
-		internal FT_Long stroke_width;
-		internal FT_Long expansion_factor;
+		internal IntPtr forcebold_threshold;
+		internal IntPtr stroke_width;
+		internal IntPtr expansion_factor;
 
 		internal byte paint_type;
 		internal byte font_type;
@@ -48,7 +43,7 @@ namespace SharpFont.PostScript.Internal
 		internal FTVector font_offset;
 
 		internal uint num_subrs;
-		internal FT_ULong subrmap_offset;
+		internal UIntPtr subrmap_offset;
 		internal int sd_bytes;
 	}
 }

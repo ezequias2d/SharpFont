@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -36,11 +33,11 @@ namespace SharpFont.Internal
 		internal ushort x_ppem;
 		internal ushort y_ppem;
 
-		internal FT_Long x_scale;
-		internal FT_Long y_scale;
-		internal FT_Long ascender;
-		internal FT_Long descender;
-		internal FT_Long height;
-		internal FT_Long max_advance;
+		internal IntPtr x_scale;
+		internal IntPtr y_scale;
+		internal IntPtr ascender;
+		internal IntPtr descender;
+		internal IntPtr height;
+		internal IntPtr max_advance;
 	}
 }

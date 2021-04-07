@@ -25,11 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using SharpFont.Internal;
-
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont
 {
 	/// <summary>
@@ -45,8 +40,8 @@ namespace SharpFont
 		#region Fields
 
 		private SizeRequestType requestType;
-		private FT_Long width;
-		private FT_Long height;
+		private IntPtr width;
+		private IntPtr height;
 		private uint horiResolution;
 		private uint vertResolution;
 
@@ -82,7 +77,7 @@ namespace SharpFont
 
 			set
 			{
-				width = (FT_Long)value;
+				width = (IntPtr)value;
 			}
 		}
 
@@ -98,7 +93,7 @@ namespace SharpFont
 
 			set
 			{
-				height = (FT_Long)value;
+				height = (IntPtr)value;
 			}
 		}
 

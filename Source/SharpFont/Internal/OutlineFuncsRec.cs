@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -38,6 +35,6 @@ namespace SharpFont.Internal
 		internal IntPtr conicTo;
 		internal IntPtr cubicTo;
 		internal int shift;
-		internal FT_Long delta;
+		internal IntPtr delta;
 	}
 }

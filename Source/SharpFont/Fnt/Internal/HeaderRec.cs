@@ -25,16 +25,13 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Fnt.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct HeaderRec
 	{
 		internal ushort version;
-		internal FT_ULong file_size;
+		internal UIntPtr file_size;
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
 		internal byte[] copyright;
@@ -60,18 +57,18 @@ namespace SharpFont.Fnt.Internal
 		internal byte default_char;
 		internal byte break_char;
 		internal ushort bytes_per_row;
-		internal FT_ULong device_offset;
-		internal FT_ULong face_name_offset;
-		internal FT_ULong bits_pointer;
-		internal FT_ULong bits_offset;
+		internal UIntPtr device_offset;
+		internal UIntPtr face_name_offset;
+		internal UIntPtr bits_pointer;
+		internal UIntPtr bits_offset;
 		internal byte reserved;
-		internal FT_ULong flags;
+		internal UIntPtr flags;
 		internal ushort A_space;
 		internal ushort B_space;
 		internal ushort C_space;
 		internal ushort color_table_offset;
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-		internal FT_ULong[] reserved1;
+		internal UIntPtr[] reserved1;
 	}
 }

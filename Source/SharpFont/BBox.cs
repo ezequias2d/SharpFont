@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont
 {
 	/// <summary>
@@ -39,8 +36,8 @@ namespace SharpFont
 	{
 		#region Fields
 
-		private FT_Long xMin, yMin;
-		private FT_Long xMax, yMax;
+		private IntPtr xMin, yMin;
+		private IntPtr xMax, yMax;
 
 		#endregion
 

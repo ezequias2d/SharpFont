@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.PostScript.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -53,7 +50,7 @@ namespace SharpFont.PostScript.Internal
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
 		internal short[] family_other_blues;
 
-		internal FT_Long blue_scale;
+		internal IntPtr blue_scale;
 		internal int blue_shift;
 		internal int blue_fuzz;
 
@@ -71,10 +68,10 @@ namespace SharpFont.PostScript.Internal
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 13)]
 		internal short[] snap_heights;
 
-		internal FT_Long expansion_factor;
+		internal IntPtr expansion_factor;
 
-		internal FT_Long language_group;
-		internal FT_Long password;
+		internal IntPtr language_group;
+		internal IntPtr password;
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
 		internal short[] min_feature;

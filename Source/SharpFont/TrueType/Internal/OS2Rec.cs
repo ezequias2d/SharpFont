@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.TrueType.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -67,10 +64,10 @@ namespace SharpFont.TrueType.Internal
 			}
 		}
 
-		internal FT_ULong ulUnicodeRange1;
-		internal FT_ULong ulUnicodeRange2;
-		internal FT_ULong ulUnicodeRange3;
-		internal FT_ULong ulUnicodeRange4;
+		internal UIntPtr ulUnicodeRange1;
+		internal UIntPtr ulUnicodeRange2;
+		internal UIntPtr ulUnicodeRange3;
+		internal UIntPtr ulUnicodeRange4;
 
 		private fixed byte _achVendID[4];
 		internal byte[] achVendID
@@ -98,8 +95,8 @@ namespace SharpFont.TrueType.Internal
 		internal ushort usWinAscent;
 		internal ushort usWinDescent;
 
-		internal FT_ULong ulCodePageRange1;
-		internal FT_ULong ulCodePageRange2;
+		internal UIntPtr ulCodePageRange1;
+		internal UIntPtr ulCodePageRange2;
 
 		internal short sxHeight;
 		internal short sCapHeight;

@@ -25,17 +25,14 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct StreamRec
 	{
 		internal IntPtr @base;
-		internal FT_ULong size;
-		internal FT_ULong pos;
+		internal UIntPtr size;
+		internal UIntPtr pos;
 
 		internal StreamDescRec descriptor;
 		internal StreamDescRec pathname;

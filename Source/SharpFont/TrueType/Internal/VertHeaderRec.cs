@@ -25,15 +25,12 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.TrueType.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
 	internal unsafe struct VertHeaderRec
 	{
-		internal FT_Long Version;
+		internal IntPtr Version;
 		internal short Ascender;
 		internal short Descender;
 		internal short Line_Gap;

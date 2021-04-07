@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	/// <summary>
@@ -39,15 +36,15 @@ namespace SharpFont.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct GlyphMetricsRec
 	{
-		internal FT_Long width;
-		internal FT_Long height;
+		internal IntPtr width;
+		internal IntPtr height;
 
-		internal FT_Long horiBearingX;
-		internal FT_Long horiBearingY;
-		internal FT_Long horiAdvance;
+		internal IntPtr horiBearingX;
+		internal IntPtr horiBearingY;
+		internal IntPtr horiAdvance;
 
-		internal FT_Long vertBearingX;
-		internal FT_Long vertBearingY;
-		internal FT_Long vertAdvance;
+		internal IntPtr vertBearingX;
+		internal IntPtr vertBearingY;
+		internal IntPtr vertAdvance;
 	}
 }

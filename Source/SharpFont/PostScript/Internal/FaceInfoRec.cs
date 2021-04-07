@@ -25,11 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using SharpFont.Internal;
-
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.PostScript.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -37,7 +32,7 @@ namespace SharpFont.PostScript.Internal
 	{
 		[MarshalAs(UnmanagedType.LPStr)]
 		internal string cid_font_name;
-		internal FT_Long cid_version;
+		internal IntPtr cid_version;
 		internal int cid_font_type;
 
 		[MarshalAs(UnmanagedType.LPStr)]
@@ -49,21 +44,21 @@ namespace SharpFont.PostScript.Internal
 
 		internal FontInfoRec font_info;
 		internal BBox font_bbox;
-		internal FT_ULong uid_base;
+		internal UIntPtr uid_base;
 
 		internal int num_xuid;
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-		internal FT_ULong[] xuid;
+		internal UIntPtr[] xuid;
 
-		internal FT_ULong cidmap_offset;
+		internal UIntPtr cidmap_offset;
 		internal int fd_bytes;
 		internal int gd_bytes;
-		internal FT_ULong cid_count;
+		internal UIntPtr cid_count;
 
 		internal int num_dicts;
 		internal IntPtr font_dicts;
 
-		internal FT_ULong data_offset;
+		internal UIntPtr data_offset;
 	}
 }

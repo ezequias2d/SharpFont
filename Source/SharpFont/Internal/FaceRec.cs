@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	/// <summary>
@@ -39,13 +36,13 @@ namespace SharpFont.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct FaceRec
 	{
-		internal FT_Long num_faces;
-		internal FT_Long face_index;
+		internal IntPtr num_faces;
+		internal IntPtr face_index;
 
-		internal FT_Long face_flags;
-		internal FT_Long style_flags;
+		internal IntPtr face_flags;
+		internal IntPtr style_flags;
 
-		internal FT_Long num_glyphs;
+		internal IntPtr num_glyphs;
 
 		internal IntPtr family_name;
 		internal IntPtr style_name;

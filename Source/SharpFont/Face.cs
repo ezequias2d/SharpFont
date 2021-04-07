@@ -1686,7 +1686,7 @@ namespace SharpFont
 		/// If you need to determine the table's length you should first call this function with ‘*length’ set to 0, as
 		/// in the following example:
 		/// <code>
-		/// FT_ULong  length = 0;
+		/// UIntPtr  length = 0;
 		///
 		///
 		/// error = FT_Load_Sfnt_Table( face, tag, 0, NULL, &amp;length );

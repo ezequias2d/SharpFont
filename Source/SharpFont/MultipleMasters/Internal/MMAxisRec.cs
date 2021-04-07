@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.MultipleMasters.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -36,7 +33,7 @@ namespace SharpFont.MultipleMasters.Internal
 		[MarshalAs(UnmanagedType.LPStr)]
 		internal string name;
 
-		internal FT_Long minimum;
-		internal FT_Long maximum;
+		internal IntPtr minimum;
+		internal IntPtr maximum;
 	}
 }

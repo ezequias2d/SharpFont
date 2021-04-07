@@ -25,16 +25,13 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.TrueType.Internal
 {
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
 	internal unsafe struct PCLTRec
 	{
-		internal FT_Long Version;
-		internal FT_ULong FontNumber;
+		internal IntPtr Version;
+		internal UIntPtr FontNumber;
 		internal ushort Pitch;
 		internal ushort xHeight;
 		internal ushort Style;

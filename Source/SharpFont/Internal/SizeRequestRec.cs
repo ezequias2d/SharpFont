@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	/// <summary>
@@ -40,8 +37,8 @@ namespace SharpFont.Internal
 	internal struct SizeRequestRec
 	{
 		internal SizeRequestType type;
-		internal FT_Long width;
-		internal FT_Long height;
+		internal IntPtr width;
+		internal IntPtr height;
 		internal uint horiResolution;
 		internal uint vertResolution;
 	}

@@ -25,30 +25,27 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.TrueType.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct HeaderRec
 	{
-		internal FT_Long Table_Version;
-		internal FT_Long Font_Revision;
+		internal IntPtr Table_Version;
+		internal IntPtr Font_Revision;
 
-		internal FT_Long Checksum_Adjust;
-		internal FT_Long Magic_Number;
+		internal IntPtr Checksum_Adjust;
+		internal IntPtr Magic_Number;
 
 		internal ushort Flags;
 		internal ushort Units_Per_EM;
 
-		internal FT_Long created1;
-		internal FT_Long created2;
-		//internal FT_Long[] Created { get { return new[] {created1, created2}; } }
+		internal IntPtr created1;
+		internal IntPtr created2;
+		//internal IntPtr[] Created { get { return new[] {created1, created2}; } }
 
-		internal FT_Long modified1;
-		internal FT_Long modified2;
-		//internal FT_Long[] Modified { get { return new[] { modified1, modified2 }; } }
+		internal IntPtr modified1;
+		internal IntPtr modified2;
+		//internal IntPtr[] Modified { get { return new[] { modified1, modified2 }; } }
 
 		internal short xMin;
 		internal short yMin;

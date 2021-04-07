@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.PostScript.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -48,7 +45,7 @@ namespace SharpFont.PostScript.Internal
 		[MarshalAs(UnmanagedType.LPStr)]
 		internal string weight;
 
-		internal FT_Long italic_angle;
+		internal IntPtr italic_angle;
 		internal byte is_fixed_pitch;
 		internal short underline_position;
 		internal ushort underline_thickness;

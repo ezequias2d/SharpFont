@@ -25,21 +25,18 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct ModuleClassRec
 	{
 		internal uint module_flags;
-		internal FT_Long module_size;
+		internal IntPtr module_size;
 
 		[MarshalAs(UnmanagedType.LPStr)]
 		internal string module_name;
-		internal FT_Long module_version;
-		internal FT_Long module_requires;
+		internal IntPtr module_version;
+		internal IntPtr module_requires;
 
 		internal IntPtr module_interface;
 

@@ -25,9 +25,6 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.Internal
 {
 	/// <summary>
@@ -46,8 +43,8 @@ namespace SharpFont.Internal
 		internal GenericRec generic;
 
 		internal GlyphMetricsRec metrics;
-		internal FT_Long linearHoriAdvance;
-		internal FT_Long linearVertAdvance;
+		internal IntPtr linearHoriAdvance;
+		internal IntPtr linearVertAdvance;
 		internal FTVector26Dot6 advance;
 
 		internal GlyphFormat format;
@@ -62,10 +59,10 @@ namespace SharpFont.Internal
 		internal IntPtr subglyphs;
 
 		internal IntPtr control_data;
-		internal FT_Long control_len;
+		internal IntPtr control_len;
 
-		internal FT_Long lsb_delta;
-		internal FT_Long rsb_delta;
+		internal IntPtr lsb_delta;
+		internal IntPtr rsb_delta;
 
 		internal IntPtr other;
 

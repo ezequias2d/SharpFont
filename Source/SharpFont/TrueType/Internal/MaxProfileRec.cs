@@ -25,15 +25,12 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 
-using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
-
 namespace SharpFont.TrueType.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct MaxProfileRec
 	{
-		internal FT_Long version;
+		internal IntPtr version;
 		internal ushort numGlyphs;
 		internal ushort maxPoints;
 		internal ushort maxContours;
