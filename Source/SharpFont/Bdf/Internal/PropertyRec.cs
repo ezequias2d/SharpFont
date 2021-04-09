@@ -27,19 +27,26 @@ using System.Runtime.InteropServices;
 
 namespace SharpFont.Bdf.Internal
 {
-	[StructLayout(LayoutKind.Explicit, Pack = 0)]
+	[StructLayout(LayoutKind.Sequential, Pack = 0)]
 	internal struct PropertyRec
 	{
-		[FieldOffset(0)]
-		internal PropertyType type;
+		internal PropertyType Type;
 
-		[FieldOffset(4)]
-		internal IntPtr atom;
+		internal Union U;
 
-		[FieldOffset(4)]
-		internal int integer;
+		[StructLayout(LayoutKind.Explicit, Pack = 0)]
+		public struct Union
+		{
+			[FieldOffset(0)]
+			public IntPtr Atom;
 
-		[FieldOffset(4)]
-		internal uint cardinal;
+			[FieldOffset(0)]
+			public int Integer;
+
+			[FieldOffset(0)]
+			public uint Cardinal;
+
+			public string AtomString => Marshal.PtrToStringAnsi(Atom);
+		}
 	}
 }

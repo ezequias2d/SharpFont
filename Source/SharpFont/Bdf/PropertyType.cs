@@ -29,7 +29,7 @@ namespace SharpFont.Bdf
 	/// <summary>
 	/// A list of BDF property types.
 	/// </summary>
-	public enum PropertyType
+	public enum PropertyType : int
 	{
 		/// <summary>Value 0 is used to indicate a missing property.</summary>
 		None = 0,
