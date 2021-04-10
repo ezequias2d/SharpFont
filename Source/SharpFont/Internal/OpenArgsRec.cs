@@ -34,12 +34,13 @@ namespace SharpFont.Internal
 		internal IntPtr memory_base;
 		internal IntPtr memory_size;
 
-		[MarshalAs(UnmanagedType.LPStr)]
-		internal string pathname;
+		internal IntPtr pathname;
 
 		internal IntPtr stream;
 		internal IntPtr driver;
 		internal int num_params;
 		internal IntPtr @params;
+
+		public string PathName => Marshal.PtrToStringAnsi(pathname);
 	}
 }

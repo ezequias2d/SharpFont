@@ -32,7 +32,6 @@ namespace SharpFont
 	/// as invalid.
 	/// </summary>
 	[Flags]
-	[CLSCompliant(false)]
 	public enum ClassicKernValidationFlags : uint
 	{
 		/// <summary>Handle the ‘kern’ table as a classic Microsoft kern table.</summary>

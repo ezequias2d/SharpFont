@@ -24,7 +24,6 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
 using SharpFont.Internal;
 
 namespace SharpFont
@@ -74,7 +73,6 @@ namespace SharpFont
 	/// <param name="raster">A handle to the new raster object.</param>
 	/// <param name="mode">A 4-byte tag used to name the mode or property.</param>
 	/// <param name="args">A pointer to the new mode/property to use.</param>
-	[CLSCompliant(false)]
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate void RasterSetModeFunc(NativeReference<Raster> raster, uint mode, IntPtr args);
 
@@ -105,105 +103,49 @@ namespace SharpFont
 	/// <summary>
 	/// A structure used to describe a given raster class to the library.
 	/// </summary>
-	public class RasterFuncs: NativeObject
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RasterFuncs
 	{
-		#region Fields
+		internal GlyphFormat glyph_format;
 
-		private RasterFuncsRec rec;
-
-		#endregion
-
-		#region Constructors
-
-		internal RasterFuncs(IntPtr reference) : base(reference)
-		{
-		}
-
-		#endregion
+		internal IntPtr raster_new;
+		internal IntPtr raster_reset;
+		internal IntPtr raster_set_mode;
+		internal IntPtr raster_render;
+		internal IntPtr raster_done;
 
 		#region Properties
 
 		/// <summary>
 		/// Gets the supported glyph format for this raster.
 		/// </summary>
-		[CLSCompliant(false)]
-		public GlyphFormat Format
-		{
-			get
-			{
-				return rec.glyph_format;
-			}
-		}
+		public GlyphFormat Format => glyph_format;
 
 		/// <summary>
 		/// Gets the raster constructor.
 		/// </summary>
-		public RasterNewFunc New
-		{
-			get
-			{
-				return rec.raster_new;
-			}
-		}
+		public RasterNewFunc New => Marshal.GetDelegateForFunctionPointer<RasterNewFunc>(raster_new);
 
 		/// <summary>
 		/// Gets a function used to reset the render pool within the raster.
 		/// </summary>
-		public RasterResetFunc Reset
-		{
-			get
-			{
-				return rec.raster_reset;
-			}
-		}
+		public RasterResetFunc Reset => Marshal.GetDelegateForFunctionPointer<RasterResetFunc>(raster_reset);
 
 		/// <summary>
 		/// Gets a function to set or change modes.
 		/// </summary>
-		[CLSCompliant(false)]
-		public RasterSetModeFunc SetMode
-		{
-			get
-			{
-				return rec.raster_set_mode;
-			}
-		}
+
+		public RasterSetModeFunc SetMode => Marshal.GetDelegateForFunctionPointer<RasterSetModeFunc>(raster_set_mode);
 
 		/// <summary>
 		/// Gets a function to render a glyph into a given bitmap.
 		/// </summary>
-		public RasterRenderFunc Render
-		{
-			get
-			{
-				return rec.raster_render;
-			}
-		}
+		public RasterRenderFunc Render => Marshal.GetDelegateForFunctionPointer<RasterRenderFunc>(raster_render);
 
 		/// <summary>
 		/// Gets the raster destructor.
 		/// </summary>
-		public RasterDoneFunc Done
-		{
-			get
-			{
-				return rec.raster_done;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<RasterFuncsRec>(value);
-			}
-		}
+		public RasterDoneFunc Done => Marshal.GetDelegateForFunctionPointer<RasterDoneFunc>(raster_done);
 
 		#endregion
 	}

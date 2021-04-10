@@ -31,11 +31,11 @@ namespace SharpFont
 {
 	/// <summary>
 	/// A structure used to indicate how to open a new font file or stream. A pointer to such a structure can be used
-	/// as a parameter for the functions <see cref="Library.OpenFace"/> and <see cref="Face.AttachStream"/>.
+	/// as a parameter for the functions <see cref="Face(Library, OpenArgs, int)"/> and <see cref="Face.AttachStream"/>.
 	/// </summary>
 	/// <remarks>
 	/// The stream type is determined by the contents of <see cref="Flags"/> which are tested in the following order by
-	/// <see cref="Library.OpenFace"/>:
+	/// <see cref="Face(Library, OpenArgs, int)"/>:
 	/// <list type="bullet">
 	/// <item><description>
 	/// If the <see cref="OpenFlags.Memory"/> bit is set, assume that this is a memory file of <see cref="MemorySize"/>
@@ -51,7 +51,7 @@ namespace SharpFont
 	/// <see cref="PathName"/> to open it.
 	/// </description></item>
 	/// <item><description>
-	/// If the <see cref="OpenFlags.Driver"/> bit is set, <see cref="Library.OpenFace"/> only tries to open the file
+	/// If the <see cref="OpenFlags.Driver"/> bit is set, <see cref="Face(Library, OpenArgs, int)"/> only tries to open the file
 	/// with the driver whose handler is in <see cref="Driver"/>.
 	/// </description></item>
 	/// <item><description>
@@ -62,104 +62,56 @@ namespace SharpFont
 	/// Ideally, both the <see cref="PathName"/> and <see cref="Params"/> fields should be tagged as ‘const’; this is
 	/// missing for API backwards compatibility. In other words, applications should treat them as read-only.
 	/// </remarks>
-	public sealed class OpenArgs
+	public sealed class OpenArgs : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private OpenArgsRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal OpenArgs(IntPtr reference)
+		internal OpenArgs(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref OpenArgsRec Rec => ref PInvokeHelper.PtrToRefStructure<OpenArgsRec>(Reference);
+
 		/// <summary>
 		/// Gets a set of bit flags indicating how to use the structure.
 		/// </summary>
-		public OpenFlags Flags
-		{
-			get
-			{
-				return rec.flags;
-			}
-		}
+		public OpenFlags Flags => Rec.flags;
 
 		/// <summary>
 		/// Gets the first byte of the file in memory.
 		/// </summary>
-		public IntPtr MemoryBase
-		{
-			get
-			{
-				return rec.memory_base;
-			}
-		}
+		public IntPtr MemoryBase => Rec.memory_base;
 
 		/// <summary>
 		/// Gets the size in bytes of the file in memory.
 		/// </summary>
-		public int MemorySize
-		{
-			get
-			{
-				return (int)rec.memory_size;
-			}
-		}
+		public int MemorySize => (int)Rec.memory_size;
 
 		/// <summary>
 		/// Gets a pointer to an 8-bit file pathname.
 		/// </summary>
-		public string PathName
-		{
-			get
-			{
-				return rec.pathname;
-			}
-		}
+		public string PathName => Rec.PathName;
 
 		/// <summary>
 		/// Gets a handle to a source stream object.
 		/// </summary>
-		public FTStream Stream
-		{
-			get
-			{
-				return new FTStream(rec.stream);
-			}
-		}
+		public FTStream Stream => new FTStream(Rec.stream);
 
 		/// <summary>
 		/// Gets the font driver to use to open the face. If set to 0, FreeType tries to load the face with each one of
 		/// the drivers in its list.
 		/// </summary>
-		/// <remarks>This field is exclusively used by <see cref="Library.OpenFace"/>.</remarks>
-		public Module Driver
-		{
-			get
-			{
-				return new Module(rec.driver);
-			}
-		}
+		/// <remarks>This field is exclusively used by <see cref="Face(Library, OpenArgs, int)"/>.</remarks>
+		public Module Driver => new Module(Rec.driver);
 
 		/// <summary>
 		/// Gets the number of extra parameters.
 		/// </summary>
-		public int ParamsCount
-		{
-			get
-			{
-				return rec.num_params;
-			}
-		}
+		public int ParamsCount => Rec.num_params;
 
 		/// <summary>
 		/// Gets the extra parameters passed to the font driver when opening a new face.
@@ -174,28 +126,13 @@ namespace SharpFont
 					return null;
 
 				Parameter[] parameters = new Parameter[count];
-				IntPtr array = rec.@params;
+				IntPtr array = Rec.@params;
 
+				int sizeOfParameterRec = Marshal.SizeOf<ParameterRec>();
 				for (int i = 0; i < count; i++)
-				{
-					parameters[i] = new Parameter(new IntPtr(array.ToInt64() + ParameterRec.SizeInBytes * i));
-				}
+					parameters[i] = new Parameter(new IntPtr(array.ToInt64() + sizeOfParameterRec * i));
 
 				return parameters;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<OpenArgsRec>(reference);
 			}
 		}
 

@@ -72,12 +72,9 @@ namespace SharpFont
 	/// endfor  
 	/// </code>
 	/// </example>
-	public sealed class GlyphSlot
+	public sealed class GlyphSlot : NativeObject
 	{
 		#region Fields
-
-		private IntPtr reference;
-		private GlyphSlotRec rec;
 
 		private Face parentFace;
 		private Library parentLibrary;
@@ -86,9 +83,8 @@ namespace SharpFont
 
 		#region Constructors
 
-		internal GlyphSlot(IntPtr reference, Face parentFace, Library parentLibrary)
+		internal GlyphSlot(IntPtr reference, Face parentFace, Library parentLibrary) : base(reference)
 		{
-			Reference = reference;
 			this.parentFace = parentFace;
 			this.parentLibrary = parentLibrary;
 		}
@@ -96,6 +92,8 @@ namespace SharpFont
 		#endregion
 
 		#region Properties
+
+		private ref GlyphSlotRec Rec => ref PInvokeHelper.PtrToRefStructure<GlyphSlotRec>(Reference);
 
 		/// <summary>
 		/// Gets a handle to the FreeType library instance this slot belongs to.
@@ -124,26 +122,14 @@ namespace SharpFont
 		/// object can be a good thing. As this is rare, the glyph slots are listed through a direct, single-linked
 		/// list using its ‘next’ field.
 		/// </summary>
-		public GlyphSlot Next
-		{
-			get
-			{
-				return new GlyphSlot(rec.next, parentFace, parentLibrary);
-			}
-		}
+		public GlyphSlot Next => new GlyphSlot(Rec.next, parentFace, parentLibrary);
 
 		/// <summary>
 		/// Gets a typeless pointer which is unused by the FreeType library or any of its drivers. It can be used by
 		/// client applications to link their own data to each glyph slot object.
 		/// </summary>
 		[Obsolete("Use the Tag property, Dispose callback not handled currently.")]
-		public Generic Generic
-		{
-			get
-			{
-				return new Generic(rec.generic);
-			}
-		}
+		public Generic Generic => Rec.generic;
 
 		/// <summary><para>
 		/// Gets the metrics of the last loaded glyph in the slot. The returned values depend on the last load flags
@@ -156,7 +142,11 @@ namespace SharpFont
 		{
 			get
 			{
-				return new GlyphMetrics(rec.metrics);
+				unsafe
+				{
+					var rec = (GlyphSlotRec*)Reference;
+					return new GlyphMetrics(new IntPtr(&rec->metrics));
+				}
 			}
 		}
 
@@ -165,26 +155,14 @@ namespace SharpFont
 		/// <see cref="LoadFlags.LinearDesign"/> is set when loading the glyph. This field can be important to perform
 		/// correct WYSIWYG layout. Only relevant for outline glyphs.
 		/// </summary>
-		public Fixed16Dot16 LinearHorizontalAdvance
-		{
-			get
-			{
-				return Fixed16Dot16.FromRawValue((int)rec.linearHoriAdvance);
-			}
-		}
+		public Fixed16Dot16 LinearHorizontalAdvance => Rec.LinearHorizontalAdvance;
 
 		/// <summary>
 		/// Gets the advance height of the unhinted glyph. Its value is expressed in 16.16 fractional pixels, unless
 		/// <see cref="LoadFlags.LinearDesign"/> is set when loading the glyph. This field can be important to perform
 		/// correct WYSIWYG layout. Only relevant for outline glyphs.
 		/// </summary>
-		public Fixed16Dot16 LinearVerticalAdvance
-		{
-			get
-			{
-				return Fixed16Dot16.FromRawValue((int)rec.linearVertAdvance);
-			}
-		}
+		public Fixed16Dot16 LinearVerticalAdvance => Rec.LinearVerticalAdvance;
 
 		/// <summary>
 		/// Gets the advance. This shorthand is, depending on <see cref="LoadFlags.IgnoreTransform"/>, the transformed
@@ -192,27 +170,14 @@ namespace SharpFont
 		/// <see cref="LoadFlags.VerticalLayout"/>, it uses either the ‘horiAdvance’ or the ‘vertAdvance’ value of
 		/// ‘metrics’ field.
 		/// </summary>
-		public FTVector26Dot6 Advance
-		{
-			get
-			{
-				return rec.advance;
-			}
-		}
+		public FTVector26Dot6 Advance => Rec.advance;
 
 		/// <summary>
 		/// Gets the glyph format. This field indicates the format of the image contained in the glyph slot. Typically
 		/// <see cref="GlyphFormat.Bitmap"/>, <see cref="GlyphFormat.Outline"/>, or
 		/// <see cref="GlyphFormat.Composite"/>, but others are possible.
 		/// </summary>
-		[CLSCompliant(false)]
-		public GlyphFormat Format
-		{
-			get
-			{
-				return rec.format;
-			}
-		}
+		public GlyphFormat Format => Rec.format;
 
 		/// <summary>
 		/// Gets the bitmap. This field is used as a bitmap descriptor when the slot format is
@@ -223,7 +188,11 @@ namespace SharpFont
 		{
 			get
 			{
-				return new FTBitmap(PInvokeHelper.AbsoluteOffsetOf<GlyphSlotRec>(Reference, "bitmap"), rec.bitmap, parentLibrary);
+				unsafe
+				{
+					var ptr = (GlyphSlotRec*)Reference;
+					return new FTBitmap(new IntPtr(&ptr->bitmap), parentLibrary);
+				}
 			}
 		}
 
@@ -231,25 +200,13 @@ namespace SharpFont
 		/// Gets the bitmap's left bearing expressed in integer pixels. Of course, this is only valid if the format is
 		/// <see cref="GlyphFormat.Bitmap"/>.
 		/// </summary>
-		public int BitmapLeft
-		{
-			get
-			{
-				return rec.bitmap_left;
-			}
-		}
+		public int BitmapLeft => Rec.bitmap_left;
 
 		/// <summary>
 		/// Gets the bitmap's top bearing expressed in integer pixels. Remember that this is the distance from the
 		/// baseline to the top-most glyph scanline, upwards y coordinates being positive.
 		/// </summary>
-		public int BitmapTop
-		{
-			get
-			{
-				return rec.bitmap_top;
-			}
-		}
+		public int BitmapTop => Rec.bitmap_top;
 
 		/// <summary>
 		/// Gets the outline descriptor for the current glyph image if its format is <see cref="GlyphFormat.Outline"/>.
@@ -260,7 +217,11 @@ namespace SharpFont
 		{
 			get
 			{
-				return new Outline(PInvokeHelper.AbsoluteOffsetOf<GlyphSlotRec>(Reference, "outline"), rec.outline);
+				unsafe
+				{
+					var ptr = (GlyphSlotRec*)Reference;
+					return new Outline(new IntPtr(&ptr->outline));
+				}
 			}
 		}
 
@@ -269,14 +230,7 @@ namespace SharpFont
 		/// that should normally only be loaded with the <see cref="LoadFlags.NoRecurse"/> flag. For now this is
 		/// internal to FreeType.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint SubglyphsCount
-		{
-			get
-			{
-				return rec.num_subglyphs;
-			}
-		}
+		public uint SubglyphsCount => Rec.num_subglyphs;
 
 		/// <summary>
 		/// Gets an array of subglyph descriptors for composite glyphs. There are ‘num_subglyphs’ elements in there.
@@ -292,7 +246,7 @@ namespace SharpFont
 					return null;
 
 				SubGlyph[] subglyphs = new SubGlyph[count];
-				IntPtr array = rec.subglyphs;
+				IntPtr array = Rec.subglyphs;
 
 				for (int i = 0; i < count; i++)
 				{
@@ -307,48 +261,24 @@ namespace SharpFont
 		/// Gets the control data. Certain font drivers can also return the control data for a given glyph image (e.g.
 		/// TrueType bytecode, Type 1 charstrings, etc.). This field is a pointer to such data.
 		/// </summary>
-		public IntPtr ControlData
-		{
-			get
-			{
-				return rec.control_data;
-			}
-		}
+		public IntPtr ControlData => Rec.control_data;
 
 		/// <summary>
 		/// Gets the length in bytes of the control data.
 		/// </summary>
-		public int ControlLength
-		{
-			get
-			{
-				return (int)rec.control_len;
-			}
-		}
+		public int ControlLength => (int)Rec.control_len;
 
 		/// <summary>
 		/// Gets the difference between hinted and unhinted left side bearing while autohinting is active. Zero
 		/// otherwise.
 		/// </summary>
-		public int DeltaLsb
-		{
-			get
-			{
-				return (int)rec.lsb_delta;
-			}
-		}
+		public int DeltaLsb => (int)Rec.lsb_delta;
 
 		/// <summary>
 		/// Gets the difference between hinted and unhinted right side bearing while autohinting is active. Zero
 		/// otherwise.
 		/// </summary>
-		public int DeltaRsb
-		{
-			get
-			{
-				return (int)rec.rsb_delta;
-			}
-		}
+		public int DeltaRsb => (int)Rec.rsb_delta;
 
 		/// <summary>
 		/// Gets or sets an object used to identify this instance of <see cref="GlyphSlot"/>. This object will not be
@@ -364,27 +294,7 @@ namespace SharpFont
 		/// Gets other data. Really wicked formats can use this pointer to present their own glyph image to client
 		/// applications. Note that the application needs to know about the image format.
 		/// </summary>
-		public IntPtr Other
-		{
-			get
-			{
-				return rec.other;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<GlyphSlotRec>(reference);
-			}
-		}
+		public IntPtr Other => Rec.other;
 
 		#endregion
 
@@ -421,7 +331,6 @@ namespace SharpFont
 		/// <param name="arg1">The subglyph's first argument (if any).</param>
 		/// <param name="arg2">The subglyph's second argument (if any).</param>
 		/// <param name="transform">The subglyph transformation (if any).</param>
-		[CLSCompliant(false)]
 		public void GetSubGlyphInfo(uint subIndex, out int index, out SubGlyphFlags flags, out int arg1, out int arg2, out FTMatrix transform)
 		{
 			Error err = FT.FT_Get_SubGlyph_Info(Reference, subIndex, out index, out flags, out arg1, out arg2, out transform);

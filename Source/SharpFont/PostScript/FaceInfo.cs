@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.PostScript.Internal;
 
 namespace SharpFont.PostScript
@@ -32,201 +32,109 @@ namespace SharpFont.PostScript
 	/// <summary>
 	/// A structure used to represent CID Face information.
 	/// </summary>
-	public class FaceInfo
+	public class FaceInfo : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private FaceInfoRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal FaceInfo(IntPtr reference)
-		{
-			Reference = reference;
+		internal FaceInfo(IntPtr reference) : base(reference)
+		{			
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref FaceInfoRec Rec => ref PInvokeHelper.PtrToRefStructure<FaceInfoRec>(Reference);
+
 		/// <summary>
 		/// The name of the font, usually condensed from FullName.
 		/// </summary>
-		public string CidFontName
-		{
-			get
-			{
-				return rec.cid_font_name;
-			}
-		}
+		public string CidFontName => Rec.CidFontName;
 
 		/// <summary>
 		/// The version number of the font.
 		/// </summary>
-		public int CidVersion
-		{
-			get
-			{
-				return (int)rec.cid_version;
-			}
-		}
+		public int CidVersion => (int)Rec.cid_version;
 
 		/// <summary>
 		/// Gets the string identifying the font's manufacturer.
 		/// </summary>
-		public string Registry
-		{
-			get
-			{
-				return rec.registry;
-			}
-		}
+		public string Registry => Rec.Registry;
 
 		/// <summary>
 		/// Gets the unique identifier for the character collection.
 		/// </summary>
-		public string Ordering
-		{
-			get
-			{
-				return rec.ordering;
-			}
-		}
+		public string Ordering => Rec.Ordering;
 
 		/// <summary>
 		/// Gets the identifier (supplement number) of the character collection.
 		/// </summary>
-		public int Supplement
-		{
-			get
-			{
-				return rec.supplement;
-			}
-		}
+		public int Supplement => Rec.supplement;
 
 		/// <summary>
 		/// Gets the dictionary of font info that is not used by the PostScript interpreter.
 		/// </summary>
-		public FontInfo FontInfo
-		{
-			get
-			{
-				return new FontInfo(rec.font_info);
-			}
-		}
+		public FontInfo FontInfo => Rec.font_info;
 
 		/// <summary>
 		/// Gets the coordinates of the corners of the bounding box.
 		/// </summary>
-		public BBox FontBBox
-		{
-			get
-			{
-				return rec.font_bbox;
-			}
-		}
+		public BBox FontBBox => Rec.font_bbox;
 
 		/// <summary>
 		/// Gets the value to form UniqueID entries for base fonts within a composite font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint UidBase
-		{
-			get
-			{
-				return (uint)rec.uid_base;
-			}
-		}
+		public uint UidBase => (uint)Rec.uid_base;
 
 		/// <summary>
 		/// Gets the number of entries in the XUID array.
 		/// </summary>
-		public int XuidCount
-		{
-			get
-			{
-				return rec.num_xuid;
-			}
-		}
+		public int XuidCount => Rec.num_xuid;
 
 		/// <summary>
 		/// Gets the extended unique IDS that identify the form, which allows
 		/// the PostScript interpreter to cache the output for reuse.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint[] Xuid
+		public ReadOnlySpan<uint> Xuid
 		{
 			get
 			{
-				uint[] xuid = new uint[rec.xuid.Length];
-				for (int i = 0; i < xuid.Length; i++)
-					xuid[i] = (uint)rec.xuid[i];
+				unsafe
+				{
+					var ptr = (FaceInfoRec*)Reference;
 
-				return xuid;
+					return new ReadOnlySpan<uint>(&ptr->xuid1, 16);
+				}
 			}
 		}
 
 		/// <summary>
 		/// Gets the offset in bytes to the charstring offset table.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint CidMapOffset
-		{
-			get
-			{
-				return (uint)rec.cidmap_offset;
-			}
-		}
+		public uint CidMapOffset => (uint)Rec.cidmap_offset;
 
 		/// <summary>
 		/// Gets the length in bytes of the FDArray index.
 		/// A value of 0 indicates that the charstring offset table doesn't contain
 		/// any FDArray indexes.
 		/// </summary>
-		public int FDBytes
-		{
-			get
-			{
-				return rec.fd_bytes;
-			}
-		}
+		public int FDBytes => Rec.fd_bytes;
 
 		/// <summary>
 		/// Gets the length of the offset to the charstring for each CID in the CID font.
 		/// </summary>
-		public int GDBytes
-		{
-			get
-			{
-				return rec.gd_bytes;
-			}
-		}
+		public int GDBytes => Rec.gd_bytes;
 
 		/// <summary>
 		/// Gets the number of valid CIDs in the CIDFont.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint CidCount
-		{
-			get
-			{
-				return (uint)rec.cid_count;
-			}
-		}
+		public uint CidCount => (uint)Rec.cid_count;
 
 		/// <summary>
 		/// Gets the number of entries in the FontDicts array.
 		/// </summary>
-		public int DictsCount
-		{
-			get
-			{
-				return rec.num_dicts;
-			}
-		}
+		public int DictsCount => Rec.num_dicts;
 
 		/// <summary>
 		/// Gets the set of font dictionaries for this font.
@@ -235,35 +143,18 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return new FaceDict(PInvokeHelper.AbsoluteOffsetOf<FaceInfoRec>(Reference, "font_dicts"));
+				unsafe
+				{
+					var ptr = (FaceInfoRec*)Reference;
+					return new FaceDict(new IntPtr(&ptr->font_dicts));
+				}
 			}
 		}
 
 		/// <summary>
 		/// The offset of the data.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint DataOffset
-		{
-			get
-			{
-				return (uint)rec.data_offset;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<FaceInfoRec>(reference);
-			}
-		}
+		public uint DataOffset => (uint)Rec.data_offset;
 
 		#endregion
 	}

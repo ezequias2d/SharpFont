@@ -33,18 +33,19 @@ namespace SharpFont.Internal
 		internal IntPtr target;
 		internal IntPtr source;
 		internal RasterFlags flags;
-		internal RasterSpanFunc gray_spans;
-		internal RasterSpanFunc black_spans;
+		internal IntPtr gray_spans;
+		internal IntPtr black_spans;
 
-		[Obsolete("Unused")]
-		internal RasterBitTestFunc bit_test;
-
-		[Obsolete("Unused")]
-		internal RasterBitSetFunc bit_set;
+		internal IntPtr bit_test;
+		internal IntPtr bit_set;
 
 		internal IntPtr user;
 		internal BBox clip_box;
 
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(RasterParamsRec)); } }
+		public RasterSpanFunc GraySpans => Marshal.GetDelegateForFunctionPointer<RasterSpanFunc>(gray_spans);
+		public RasterSpanFunc BlackSpans => Marshal.GetDelegateForFunctionPointer<RasterSpanFunc>(black_spans);
+		public RasterBitTestFunc BitTest => Marshal.GetDelegateForFunctionPointer<RasterBitTestFunc>(bit_test);
+		public RasterBitSetFunc BitSet => Marshal.GetDelegateForFunctionPointer<RasterBitSetFunc>(bit_set);
+
 	}
 }

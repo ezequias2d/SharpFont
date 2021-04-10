@@ -39,38 +39,31 @@ namespace SharpFont.TrueType.Internal
 		internal ushort CapHeight;
 		internal ushort SymbolSet;
 
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
-		internal string TypeFace;
+		internal fixed byte TypeFace[16];
 
 		private fixed byte characterComplement[8];
-		internal byte[] CharacterComplement
+		internal ReadOnlySpan<byte> CharacterComplement
 		{
 			get
 			{
-				var array = new byte[8];
-				fixed (byte* p = characterComplement)
+				unsafe
 				{
-					for (int i = 0; i < array.Length; i++)
-						array[i] = p[i];
+					fixed (byte* ptr = characterComplement)
+						return new ReadOnlySpan<byte>(ptr, 8).ToArray();
 				}
-				return array;
 			}
 		}
 
 		private fixed byte fileName[6];
-		internal byte[] FileName
+		internal ReadOnlySpan<byte> FileName
 		{
 			get
 			{
-				var array = new byte[6];
-
-				fixed (byte* p = fileName)
+				unsafe
 				{
-					for (int i = 0; i < array.Length; i++)
-						array[i] = p[i];
+					fixed (byte* ptr = fileName)
+						return new ReadOnlySpan<byte>(ptr, 6).ToArray();
 				}
-
-				return array;
 			}
 		}
 
@@ -78,5 +71,17 @@ namespace SharpFont.TrueType.Internal
 		internal byte WidthType;
 		internal byte SerifStyle;
 		internal byte Reserved;
+
+		public string TypeFaceString
+		{
+			get
+			{
+				unsafe
+				{
+					fixed(byte* ptr = TypeFace)
+						return Marshal.PtrToStringAnsi(new IntPtr(ptr), 16);
+				}
+			}
+		} 
 	}
 }

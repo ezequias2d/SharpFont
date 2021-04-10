@@ -42,45 +42,29 @@ namespace SharpFont
 	/// </para><para>
 	/// The outline's tables are always owned by the object and are destroyed with it.
 	/// </para></remarks>
-	public class OutlineGlyph : IDisposable
+	public class OutlineGlyph : DisposableNativeObject
 	{
 		#region Fields
 
-		private Glyph original;
-		private OutlineGlyphRec rec;
+		private Glyph _original;
 
 		#endregion
 
 		#region Constructors
 
-		internal OutlineGlyph(Glyph original)
+		internal OutlineGlyph(Glyph original) : base(original.Reference)
 		{
-			this.original = original;
-			Reference = original.Reference; //sets the rec
-		}
-
-		/// <summary>
-		/// Finalizes an instance of the <see cref="OutlineGlyph"/> class.
-		/// </summary>
-		~OutlineGlyph()
-		{
-			Dispose(false);
+			_original.DisposeEvent += (disposing) =>
+			{
+				ForceDisposeState();
+			};
 		}
 
 		#endregion
 
 		#region Properties
 
-		/// <summary>
-		/// Gets a value indicating whether the object has been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get
-			{
-				return original.IsDisposed;
-			}
-		}
+		private ref OutlineGlyphRec Rec => ref PInvokeHelper.PtrToRefStructure<OutlineGlyphRec>(Reference);
 
 		/// <summary>
 		/// Gets the root <see cref="Glyph"/> fields.
@@ -92,7 +76,7 @@ namespace SharpFont
 				if (IsDisposed)
 					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
 
-				return original;
+				return _original;
 			}
 		}
 
@@ -103,29 +87,11 @@ namespace SharpFont
 		{
 			get
 			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
-
-				return new Outline(PInvokeHelper.AbsoluteOffsetOf<OutlineGlyphRec>(Reference, "outline"), rec.outline);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
-
-				return original.Reference;
-			}
-
-			set
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
-
-				rec = PInvokeHelper.PtrToStructure<OutlineGlyphRec>(original.Reference);
+				unsafe
+				{
+					var ptr = (OutlineGlyphRec*)Reference;
+					return new Outline(new IntPtr(&ptr->outline));
+				}
 			}
 		}
 
@@ -141,35 +107,17 @@ namespace SharpFont
 		/// <returns>A <see cref="Glyph"/>.</returns>
 		public static implicit operator Glyph(OutlineGlyph g)
 		{
-			return g.original;
+			return g._original;
 		}
 
 		#endregion
 
 		#region Methods
 
-		/// <summary>
-		/// A CLS-compliant version of the implicit cast to <see cref="Glyph"/>.
-		/// </summary>
-		/// <returns>A <see cref="Glyph"/>.</returns>
-		public Glyph ToGlyph()
-		{
-			return (Glyph)this;
-		}
-
-		/// <summary>
-		/// Disposes an instance of the <see cref="OutlineGlyph"/> class.
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		private void Dispose(bool disposing)
+		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
-				original.Dispose();
+				_original.Dispose();
 		}
 
 		#endregion

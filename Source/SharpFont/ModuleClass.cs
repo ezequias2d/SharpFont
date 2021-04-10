@@ -58,12 +58,6 @@ namespace SharpFont
 	/// </summary>
 	public class ModuleClass : NativeObject
 	{
-		#region Fields
-
-		private ModuleClassRec rec;
-
-		#endregion
-
 		#region Constructors
 
 		internal ModuleClass(IntPtr reference) : base(reference)
@@ -74,120 +68,53 @@ namespace SharpFont
 
 		#region Properties
 
+		private ref ModuleClassRec Rec => ref PInvokeHelper.PtrToRefStructure<ModuleClassRec>(Reference);
+
 		/// <summary>
 		/// Gets bit flags describing the module.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint Flags
-		{
-			get
-			{
-				return rec.module_flags;
-			}
-		}
+		public uint Flags => Rec.module_flags;
 
 		/// <summary>
 		/// Gets the size of one module object/instance in bytes.
 		/// </summary>
-		public int Size
-		{
-			get
-			{
-				return (int)rec.module_size;
-			}
-		}
+		public int Size => (int)Rec.module_size;
 
 		/// <summary>
 		/// Gets the name of the module.
 		/// </summary>
-		public string Name
-		{
-			get
-			{
-				return rec.module_name;
-			}
-		}
+		public string Name => Rec.ModuleName;
 
 		/// <summary>
 		/// Gets the version, as a 16.16 fixed number (major.minor).
 		/// </summary>
-		public Fixed16Dot16 Version
-		{
-			get
-			{
-				return Fixed16Dot16.FromRawValue((int)rec.module_version);
-			}
-		}
+		public Fixed16Dot16 Version => Rec.Version;
 
 		/// <summary>
 		/// Gets the version of FreeType this module requires, as a 16.16 fixed number (major.minor). Starts at version
 		/// 2.0, i.e., 0x20000.
 		/// </summary>
-		public Fixed16Dot16 Requires
-		{
-			get
-			{
-				return Fixed16Dot16.FromRawValue((int)rec.module_requires);
-			}
-		}
+		public Fixed16Dot16 Requires => Rec.Requires;
 
 		/// <summary>
 		/// Get the module interface.
 		/// </summary>
-		public IntPtr Interface
-		{
-			get
-			{
-				return rec.module_interface;
-			}
-		}
+		public IntPtr Interface => Rec.module_interface;
 
 		/// <summary>
 		/// Gets the initializing function.
 		/// </summary>
-		public ModuleConstructor Init
-		{
-			get
-			{
-				return rec.module_init;
-			}
-		}
+		public ModuleConstructor Init => Rec.ModuleInit;
 
 		/// <summary>
 		/// Gets the finalizing function.
 		/// </summary>
-		public ModuleDestructor Done
-		{
-			get
-			{
-				return rec.module_done;
-			}
-		}
+		public ModuleDestructor Done => Rec.ModuleDone;
 
 		/// <summary>
 		/// Gets the interface requesting function.
 		/// </summary>
-		public ModuleRequester GetInterface
-		{
-			get
-			{
-				return rec.get_interface;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<ModuleClassRec>(value);
-			}
-		}
+		public ModuleRequester GetInterface => Rec.GetInterface;
 
 		#endregion
 	}

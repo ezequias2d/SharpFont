@@ -43,6 +43,14 @@ namespace SharpFont
 			return (T)Marshal.PtrToStructure(reference, typeof(T));
 		}
 
+		internal static ref T PtrToRefStructure<T>(IntPtr reference) where T : unmanaged
+		{
+			unsafe
+			{
+				return ref *(T*)reference;
+			}
+		}
+
 		/// <summary>
 		/// A method to copy data from one pointer to another, byte by byte.
 		/// </summary>

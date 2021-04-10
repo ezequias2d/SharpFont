@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 using System.Collections.Generic;
 
@@ -40,14 +41,28 @@ namespace SharpFont.Cache
 	/// All limitations are enforced by keeping lists of managed objects in most-recently-used order, and flushing old
 	/// nodes to make room for new ones.
 	/// </para></summary>
-	public sealed class Manager : IDisposable
+	public sealed class Manager : DisposableNativeObject
 	{
+		#region static
+		private static IntPtr NewManager(Library library, uint maxFaces, uint maxSizes, ulong maxBytes, FaceRequester requester, IntPtr requestData)
+		{
+			if (library == null)
+				throw new ArgumentNullException(nameof(library));
+
+			Error err = FT.FTC_Manager_New(library.Reference, maxFaces, maxSizes, maxBytes, requester, requestData, out var mgrRef);
+
+			if (err != Error.Ok)
+				throw new FreeTypeException(err);
+
+			return mgrRef;
+		}
+		#endregion
 		#region Fields
 
-		private IntPtr reference;
+		//private IntPtr reference;
 		private Library parentLibrary;
 
-		private bool disposed;
+		//private bool disposed;
 
 		#endregion
 
@@ -73,64 +88,11 @@ namespace SharpFont.Cache
 		/// <param name="requestData">
 		/// A generic pointer that is passed to the requester each time it is called (see <see cref="FaceRequester"/>).
 		/// </param>
-		[CLSCompliant(false)]
 		public Manager(Library library, uint maxFaces, uint maxSizes, ulong maxBytes, FaceRequester requester, IntPtr requestData)
+			: base(NewManager(library, maxFaces, maxSizes, maxBytes, requester, requestData))
 		{
-			if (library == null)
-				throw new ArgumentNullException("library");
-
-			IntPtr mgrRef;
-			Error err = FT.FTC_Manager_New(library.Reference, maxFaces, maxSizes, maxBytes, requester, requestData, out mgrRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			Reference = mgrRef;
-
-			this.parentLibrary = library;
+			parentLibrary = library;
 			library.AddChildManager(this);
-		}
-
-		/// <summary>
-		/// Finalizes an instance of the Manager class.
-		/// </summary>
-		~Manager()
-		{
-			Dispose(false);
-		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// Gets a value indicating whether the object has been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get
-			{
-				return disposed;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				reference = value;
-			}
 		}
 
 		#endregion
@@ -141,13 +103,7 @@ namespace SharpFont.Cache
 		/// Empty a given cache manager. This simply gets rid of all the currently cached <see cref="Face"/> and
 		/// <see cref="FTSize"/> objects within the manager.
 		/// </summary>
-		public void Reset()
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
-
-			FT.FTC_Manager_Reset(Reference);
-		}
+		public void Reset() => FT.FTC_Manager_Reset(Reference);
 
 		/// <summary>
 		/// Retrieve the <see cref="Face"/> object that corresponds to a given face ID through a cache manager.
@@ -172,17 +128,13 @@ namespace SharpFont.Cache
 		/// <returns>A handle to the face object.</returns>
 		public Face LookupFace(IntPtr faceId)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
-
-			IntPtr faceRef;
-			Error err = FT.FTC_Manager_LookupFace(Reference, faceId, out faceRef);
+			Error err = FT.FTC_Manager_LookupFace(Reference, faceId, out var faceRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
 
 			//HACK fix this later.
-			return new Face(faceRef, null);
+			return new Face(null, faceRef);
 		}
 
 		/// <summary>
@@ -206,11 +158,7 @@ namespace SharpFont.Cache
 		/// <returns>A handle to the size object.</returns>
 		public FTSize LookupSize(Scaler scaler)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
-
-			IntPtr sizeRef;
-			Error err = FT.FTC_Manager_LookupSize(Reference, scaler.Reference, out sizeRef);
+			Error err = FT.FTC_Manager_LookupSize(Reference, scaler.Reference, out var sizeRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -231,42 +179,22 @@ namespace SharpFont.Cache
 		///  ‘faceID’ value, and to be immediately destroyed when released by all their users.
 		/// </para></remarks>
 		/// <param name="faceId">The FTC_FaceID to be removed.</param>
-		public void RemoveFaceId(IntPtr faceId)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
-
+		public void RemoveFaceId(IntPtr faceId) =>
 			FT.FTC_Manager_RemoveFaceID(Reference, faceId);
-		}
 
 		#endregion
 
-		#region IDisposable Members
+		#region DisposableNativeObject Members
 
-		/// <summary>
-		/// Disposes the Manager.
-		/// </summary>
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+			FT.FTC_Manager_Done(Reference);
 
-		private void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				disposed = true;
-
-				FT.FTC_Manager_Done(reference);
-				reference = IntPtr.Zero;
-
-				// removes itself from the parent Library, with a check to prevent this from happening when Library is
-				// being disposed (Library disposes all it's children with a foreach loop, this causes an
-				// InvalidOperationException for modifying a collection during enumeration)
-				if (!parentLibrary.IsDisposed)
-					parentLibrary.RemoveChildManager(this);
-			}
+			// removes itself from the parent Library, with a check to prevent this from happening when Library is
+			// being disposed (Library disposes all it's children with a foreach loop, this causes an
+			// InvalidOperationException for modifying a collection during enumeration)
+			if (!parentLibrary.IsDisposed)
+				parentLibrary.RemoveChildManager(this);
 		}
 
 		#endregion

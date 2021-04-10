@@ -44,6 +44,8 @@ namespace SharpFont.Internal
 		internal IntPtr x_ppem;
 		internal IntPtr y_ppem;
 
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(BitmapSizeRec)); } }
+		internal Fixed26Dot6 Size => Fixed26Dot6.FromRawValue((int)size);
+		internal Fixed26Dot6 NominalWidth => Fixed26Dot6.FromRawValue((int)x_ppem);
+		internal Fixed26Dot6 NominalHeight => Fixed26Dot6.FromRawValue((int)y_ppem);
 	}
 }

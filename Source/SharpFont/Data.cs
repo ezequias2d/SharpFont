@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 using System.Runtime.InteropServices;
 
@@ -30,19 +31,12 @@ namespace SharpFont
 	/// <summary>
 	/// Read-only binary data represented as a pointer and a length.
 	/// </summary>
-	public sealed class Data
+	public sealed class Data : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-
-		#endregion
-
 		#region Constructors
 
-		internal Data(IntPtr reference)
+		internal Data(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
@@ -52,37 +46,12 @@ namespace SharpFont
 		/// <summary>
 		/// Gets the data.
 		/// </summary>
-		public IntPtr Pointer
-		{
-			get
-			{
-				return Marshal.ReadIntPtr(reference, 0);
-			}
-		}
+		public IntPtr Pointer => Marshal.ReadIntPtr(Reference, 0);
 
 		/// <summary>
 		/// Gets the length of the data in bytes.
 		/// </summary>
-		public int Length
-		{
-			get
-			{
-				return Marshal.ReadInt32(reference, IntPtr.Size);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
-		}
+		public int Length => Marshal.ReadInt32(Reference, IntPtr.Size);
 
 		#endregion
 	}

@@ -26,90 +26,46 @@ using System;
 using System.Runtime.InteropServices;
 
 using SharpFont.Cache.Internal;
+using SharpFont.Internal;
 
 namespace SharpFont.Cache
 {
 	/// <summary>
 	/// A structure used to model the type of images in a glyph cache.
 	/// </summary>
-	public class ImageType
+	public class ImageType : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private ImageTypeRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal ImageType(IntPtr reference)
+		internal ImageType(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref ImageTypeRec Rec => ref PInvokeHelper.PtrToRefStructure<ImageTypeRec>(Reference);
+
 		/// <summary>
 		/// Gets the face ID.
 		/// </summary>
-		public IntPtr FaceId
-		{
-			get
-			{
-				return rec.face_id;
-			}
-		}
+		public IntPtr FaceId => Rec.face_id;
 
 		/// <summary>
 		/// Gets the width in pixels.
 		/// </summary>
-		public int Width
-		{
-			get
-			{
-				return rec.width;
-			}
-		}
+		public int Width => Rec.width;
 
 		/// <summary>
 		/// Gets the height in pixels.
 		/// </summary>
-		public int Height
-		{
-			get
-			{
-				return rec.height;
-			}
-		}
+		public int Height => Rec.height;
 
 		/// <summary>
 		/// Gets the load flags, as in <see cref="Face.LoadGlyph"/>
 		/// </summary>
-		[CLSCompliant(false)]
-		public LoadFlags Flags
-		{
-			get
-			{
-				return rec.flags;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<ImageTypeRec>(reference);
-			}
-		}
+		public LoadFlags Flags => Rec.flags;
 
 		#endregion
 	}

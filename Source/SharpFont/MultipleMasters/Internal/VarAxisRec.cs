@@ -30,8 +30,7 @@ namespace SharpFont.MultipleMasters.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct VarAxisRec
 	{
-		[MarshalAs(UnmanagedType.LPStr)]
-		internal string name;
+		internal IntPtr name;
 
 		internal IntPtr minimum;
 		internal IntPtr def;
@@ -39,5 +38,7 @@ namespace SharpFont.MultipleMasters.Internal
 
 		internal UIntPtr tag;
 		internal uint strid;
+
+		public string Name => Marshal.PtrToStringAnsi(name);
 	}
 }

@@ -37,19 +37,22 @@ namespace SharpFont
 	/// For now, the only pixel modes supported by FreeType are mono and grays. However, drivers might be added in the
 	/// future to support more ‘colorful’ options.
 	/// </remarks>
-	public sealed class FTBitmap : IDisposable
+	public sealed class FTBitmap : DisposableNativeObject
 	{
+		#region static
+		public static IntPtr NewBitmap()
+		{
+			IntPtr bitmapRef = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(BitmapRec)));
+			FT.FT_Bitmap_New(bitmapRef);
+			return bitmapRef;
+		}
+		#endregion
 		#region Fields
 
-		private IntPtr reference;
-		private BitmapRec rec;
-
-		private Library library;
-
-		private bool disposed;
+		private Library _library;
 
 		//If the bitmap was generated with FT_Bitmap_New.
-		private bool user;
+		private readonly bool _user;
 
 		#endregion
 
@@ -59,79 +62,32 @@ namespace SharpFont
 		/// Initializes a new instance of the <see cref="FTBitmap"/> class.
 		/// </summary>
 		/// <param name="library">The parent <see cref="Library"/>.</param>
-		public FTBitmap(Library library)
+		public FTBitmap(Library library) : base(NewBitmap())
 		{
-			IntPtr bitmapRef = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(BitmapRec)));
-			FT.FT_Bitmap_New(bitmapRef);
-			Reference = bitmapRef;
-
-			this.library = library;
-			this.user = true;
+			_library = library;
+			_user = true;
 		}
 
-		internal FTBitmap(IntPtr reference, Library library)
+		internal FTBitmap(IntPtr reference, Library library) : base(reference)
 		{
-			Reference = reference;
-			this.library = library;
-		}
-
-		internal FTBitmap(IntPtr reference, BitmapRec bmpInt, Library library)
-		{
-			this.reference = reference;
-			this.rec = bmpInt;
-			this.library = library;
-		}
-
-		/// <summary>
-		/// Finalizes an instance of the <see cref="FTBitmap"/> class.
-		/// </summary>
-		~FTBitmap()
-		{
-			Dispose(false);
+			_library = library;
 		}
 
 		#endregion
 
 		#region Properties
 
-		/// <summary>
-		/// Gets a value indicating whether the <see cref="FTBitmap"/> has been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get
-			{
-				return disposed;
-			}
-		}
+		private ref BitmapRec Rec => ref PInvokeHelper.PtrToRefStructure<BitmapRec>(Reference);
 
 		/// <summary>
 		/// Gets the number of bitmap rows.
 		/// </summary>
-		public int Rows
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.rows;
-			}
-		}
+		public int Rows => Rec.rows;
 
 		/// <summary>
 		/// Gets the number of pixels in bitmap row.
 		/// </summary>
-		public int Width
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.width;
-			}
-		}
+		public int Width => Rec.width;
 
 		/// <summary><para>
 		/// Gets the pitch's absolute value is the number of bytes taken by one bitmap row, including padding. However,
@@ -147,125 +103,48 @@ namespace SharpFont
 		/// Alternatively, you might use callback functions to directly render to the application's surface; see the
 		/// file ‘example2.cpp’ in the tutorial for a demonstration.
 		/// </para></summary>
-		public int Pitch
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.pitch;
-			}
-		}
+		public int Pitch => Rec.pitch;
 
 		/// <summary>
 		/// Gets a typeless pointer to the bitmap buffer. This value should be aligned on 32-bit boundaries in most
 		/// cases.
 		/// </summary>
-		public IntPtr Buffer
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.buffer;
-			}
-		}
+		public IntPtr Buffer => Rec.buffer;
 
 		/// <summary>
 		/// Gets the number of gray levels used in the bitmap. This field is only used with
 		/// <see cref="SharpFont.PixelMode.Gray"/>.
 		/// </summary>
-		public short GrayLevels
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.num_grays;
-			}
-		}
+		public short GrayLevels => Rec.num_grays;
 
 		/// <summary>
 		/// Gets the pixel mode, i.e., how pixel bits are stored.
 		/// </summary>
-		public PixelMode PixelMode
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.pixel_mode;
-			}
-		}
+		public PixelMode PixelMode => Rec.pixel_mode;
 
 		/// <summary>
 		/// Gets how the palette is stored. This field is intended for paletted pixel modes.
 		/// </summary>
 		[Obsolete("Not used currently.")]
-		public byte PaletteMode
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.palette_mode;
-			}
-		}
+		public byte PaletteMode => Rec.palette_mode;
 
 		/// <summary>
 		/// Gets a typeless pointer to the bitmap palette; this field is intended for paletted pixel modes.
 		/// </summary>
 		[Obsolete("Not used currently.")]
-		public IntPtr Palette
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return rec.palette;
-			}
-		}
+		public IntPtr Palette => Rec.palette;
 
 		/// <summary>
 		/// Gets the <see cref="FTBitmap"/>'s buffer as a byte array.
 		/// </summary>
-		public byte[] BufferData
+		public ReadOnlySpan<byte> BufferData
 		{
 			get
 			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				//TODO deal with negative pitch
-				byte[] data = new byte[rec.rows * rec.pitch];
-				Marshal.Copy(rec.buffer, data, 0, data.Length);
-				return data;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<BitmapRec>(reference);
+				unsafe
+				{
+					return new ReadOnlySpan<byte>((void*)Rec.buffer, Rec.rows * Math.Abs(Rec.pitch));
+				}
 			}
 		}
 
@@ -280,16 +159,12 @@ namespace SharpFont
 		/// <returns>A handle to the target bitmap.</returns>
 		public FTBitmap Copy(Library library)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
 			if (library == null)
 				throw new ArgumentNullException("library");
 
 			FTBitmap newBitmap = new FTBitmap(library);
-			IntPtr bmpRef = newBitmap.reference;
+			IntPtr bmpRef = newBitmap.Reference;
 			Error err = FT.FT_Bitmap_Copy(library.Reference, Reference, bmpRef);
-			newBitmap.Reference = bmpRef;
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -317,9 +192,6 @@ namespace SharpFont
 		/// </param>
 		public void Embolden(Library library, Fixed26Dot6 xStrength, Fixed26Dot6 yStrength)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
 			if (library == null)
 				throw new ArgumentNullException("library");
 
@@ -348,16 +220,12 @@ namespace SharpFont
 		/// <returns>The target bitmap.</returns>
 		public FTBitmap Convert(Library library, int alignment)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
 			if (library == null)
 				throw new ArgumentNullException("library");
 
 			FTBitmap newBitmap = new FTBitmap(library);
-			IntPtr bmpRef = newBitmap.reference;
+			IntPtr bmpRef = newBitmap.Reference;
 			Error err = FT.FT_Bitmap_Convert(library.Reference, Reference, bmpRef, alignment);
-			newBitmap.Reference = bmpRef;
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -365,32 +233,17 @@ namespace SharpFont
 			return newBitmap;
 		}
 
-		#region IDisposable
+		#region DisposableNativeObject
 
-		/// <summary>
-		/// Disposes an instance of the <see cref="FTBitmap"/> class.
-		/// </summary>
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		private void Dispose(bool disposing)
-		{
-			if (!disposed)
+			if (_user)
 			{
-				disposed = true;
-
-				if (user)
-				{
-					FT.FT_Bitmap_Done(library.Reference, reference);
-					Marshal.FreeHGlobal(reference);
-				}
-
-				reference = IntPtr.Zero;
-				library = null;
+				FT.FT_Bitmap_Done(_library.Reference, Reference);
+				Marshal.FreeHGlobal(Reference);
 			}
+
+			_library = null;
 		}
 
 		#endregion

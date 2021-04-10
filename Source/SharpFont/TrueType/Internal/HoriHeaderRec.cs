@@ -45,19 +45,17 @@ namespace SharpFont.TrueType.Internal
 		internal short caret_Offset;
 
 		private fixed short reserved[4];
-		internal short[] Reserved
+		internal ReadOnlySpan<short> Reserved
 		{
 			get
 			{
-				var array = new short[4];
-
-				fixed (short* p = reserved)
+				unsafe
 				{
-					for (int i = 0; i < array.Length; i++)
-						array[i] = p[i];
+					fixed(short* ptr = reserved)
+					{
+						return new ReadOnlySpan<short>(ptr, 4).ToArray();
+					}
 				}
-
-				return array;
 			}
 		}
 

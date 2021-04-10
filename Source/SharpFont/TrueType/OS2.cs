@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.TrueType.Internal;
 
 namespace SharpFont.TrueType
@@ -36,496 +36,223 @@ namespace SharpFont.TrueType
 	/// Note that we now support old Mac fonts which do not include an OS/2 table. In this case, the ‘version’ field is
 	/// always set to 0xFFFF.
 	/// </para></summary>
-	public class OS2
+	public class OS2 : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private OS2Rec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal OS2(IntPtr reference)
+		internal OS2(IntPtr reference) :base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref OS2Rec Rec => ref PInvokeHelper.PtrToRefStructure<OS2Rec>(Reference);
+
 		/// <summary>
 		/// The version of this table.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort Version
-		{
-			get
-			{
-				return rec.version;
-			}
-		}
+		public ushort Version => Rec.version;
 
 		/// <summary>
 		/// The average glyph width, computed by averaging ALL non-zero width glyphs in the font, in pels/em.
 		/// </summary>
-		public short AverageCharWidth
-		{
-			get
-			{
-				return rec.xAvgCharWidth;
-			}
-		}
+		public short AverageCharWidth => Rec.xAvgCharWidth;
 
 		/// <summary>
 		/// The visual weight of the font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort WeightClass
-		{
-			get
-			{
-				return rec.usWeightClass;
-			}
-		}
+		public ushort WeightClass => Rec.usWeightClass;
 
 		/// <summary>
 		/// The relative change in width from the normal aspect ratio.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort WidthClass
-		{
-			get
-			{
-				return rec.usWidthClass;
-			}
-		}
+		public ushort WidthClass => Rec.usWidthClass;
 
 		/// <summary>
 		/// Font embedding and subsetting licensing rights as determined by the font author.
 		/// </summary>
-		[CLSCompliant(false)]
-		public EmbeddingTypes EmbeddingType
-		{
-			get
-			{
-				return rec.fsType;
-			}
-		}
+		public EmbeddingTypes EmbeddingType => Rec.fsType;
 
 		/// <summary>
 		/// The font author's recommendation for sizing glyphs (em square) to create subscripts when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SubscriptSizeX
-		{
-			get
-			{
-				return rec.ySubscriptXSize;
-			}
-		}
+		public short SubscriptSizeX => Rec.ySubscriptXSize;
 
 		/// <summary>
 		/// The font author's recommendation for sizing glyphs (em height) to create subscripts when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SubscriptSizeY
-		{
-			get
-			{
-				return rec.ySubscriptYSize;
-			}
-		}
+		public short SubscriptSizeY => Rec.ySubscriptYSize;
 
 		/// <summary>
 		/// The font author's recommendation for vertically positioning subscripts that are created when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SubscriptOffsetX
-		{
-			get
-			{
-				return rec.ySubscriptXOffset;
-			}
-		}
+		public short SubscriptOffsetX => Rec.ySubscriptXOffset;
 
 		/// <summary>
 		/// The font author's recommendation for horizontally positioning subscripts that are created when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SubscriptOffsetY
-		{
-			get
-			{
-				return rec.ySubscriptYOffset;
-			}
-		}
+		public short SubscriptOffsetY => Rec.ySubscriptYOffset;
 
 		/// <summary>
 		/// The font author's recommendation for sizing glyphs (em square) to create superscripts when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SuperscriptSizeX
-		{
-			get
-			{
-				return rec.ySuperscriptXSize;
-			}
-		}
+		public short SuperscriptSizeX => Rec.ySuperscriptXSize;
 
 		/// <summary>
 		/// The font author's recommendation for sizing glyphs (em height) to create superscripts when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SuperscriptSizeY
-		{
-			get
-			{
-				return rec.ySuperscriptYSize;
-			}
-		}
+		public short SuperscriptSizeY => Rec.ySuperscriptYSize;
 
 		/// <summary>
 		/// The font author's recommendation for vertically positioning superscripts that are created when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SuperscriptOffsetX
-		{
-			get
-			{
-				return rec.ySuperscriptXOffset;
-			}
-		}
+		public short SuperscriptOffsetX => Rec.ySuperscriptXOffset;
 
 		/// <summary>
 		/// The font author's recommendation for horizontally positioning superscripts that are created when a glyph doesn't exist for a subscript.
 		/// </summary>
-		public short SuperscriptOffsetY
-		{
-			get
-			{
-				return rec.ySuperscriptYOffset;
-			}
-		}
+		public short SuperscriptOffsetY => Rec.ySuperscriptYOffset;
 
 		/// <summary>
 		/// The thickness of the strikeout stroke.
 		/// </summary>
-		public short StrikeoutSize
-		{
-			get
-			{
-				return rec.yStrikeoutSize;
-			}
-		}
+		public short StrikeoutSize => Rec.yStrikeoutSize;
 
 		/// <summary>
 		/// The position of the top of the strikeout line relative to the baseline.
 		/// </summary>
-		public short StrikeoutPosition
-		{
-			get
-			{
-				return rec.yStrikeoutPosition;
-			}
-		}
+		public short StrikeoutPosition => Rec.yStrikeoutPosition;
 
 		/// <summary>
 		/// The IBM font family class and subclass, useful for choosing visually similar fonts.
 		/// </summary>
 		/// <remarks>Refer to https://www.microsoft.com/typography/otspec160/ibmfc.htm. </remarks>
-		public short FamilyClass
-		{
-			get
-			{
-				return rec.sFamilyClass;
-			}
-		}
+		public short FamilyClass => Rec.sFamilyClass;
 
 		//TODO write a PANOSE class from TrueType spec?
 		/// <summary>
 		/// The Panose values describe visual characteristics of the font.
 		/// Similar fonts can then be selected based on their Panose values.
 		/// </summary>
-		public byte[] Panose
-		{
-			get
-			{
-				return rec.panose;
-			}
-		}
+		public ReadOnlySpan<byte> Panose => Rec.Panose;
 
 		/// <summary>
 		/// Unicode character range, bits 0-31.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint UnicodeRange1
-		{
-			get
-			{
-				return (uint)rec.ulUnicodeRange1;
-			}
-		}
+		public uint UnicodeRange1 => (uint)Rec.ulUnicodeRange1;
 
 		/// <summary>
 		/// Unicode character range, bits 32-63.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint UnicodeRange2
-		{
-			get
-			{
-				return (uint)rec.ulUnicodeRange2;
-			}
-		}
+		public uint UnicodeRange2 => (uint)Rec.ulUnicodeRange2;
 
 		/// <summary>
 		/// Unicode character range, bits 64-95.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint UnicodeRange3
-		{
-			get
-			{
-				return (uint)rec.ulUnicodeRange3;
-			}
-		}
+		public uint UnicodeRange3 => (uint)Rec.ulUnicodeRange3;
 
 		/// <summary>
 		/// Unicode character range, bits 96-127.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint UnicodeRange4
-		{
-			get
-			{
-				return (uint)rec.ulUnicodeRange4;
-			}
-		}
+		public uint UnicodeRange4 => (uint)Rec.ulUnicodeRange4;
 
 		/// <summary>
 		/// The vendor's identifier.
 		/// </summary>
-		public byte[] VendorId
-		{
-			get
-			{
-				return rec.achVendID;
-			}
-		}
+		public ReadOnlySpan<byte> VendorId => Rec.AchVendID;
 
 		/// <summary>
 		/// Describes variations in the font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort SelectionFlags
-		{
-			get
-			{
-				return rec.fsSelection;
-			}
-		}
+		public ushort SelectionFlags => Rec.fsSelection;
 
 		/// <summary>
 		/// The minimum Unicode index (character code) in this font.
 		/// Since this value is limited to 0xFFFF, applications should not use this field.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort FirstCharIndex
-		{
-			get
-			{
-				return rec.usFirstCharIndex;
-			}
-		}
+		public ushort FirstCharIndex => Rec.usFirstCharIndex;
 
 		/// <summary>
 		/// The maximum Unicode index (character code) in this font.
 		/// Since this value is limited to 0xFFFF, applications should not use this field.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort LastCharIndex
-		{
-			get
-			{
-				return rec.usLastCharIndex;
-			}
-		}
+		public ushort LastCharIndex => Rec.usLastCharIndex;
 		
 		/// <summary>
 		/// The ascender value, useful for computing a default line spacing in conjunction with unitsPerEm.
 		/// </summary>
-		public short TypographicAscender
-		{
-			get
-			{
-				return rec.sTypoAscender;
-			}
-		}
+		public short TypographicAscender => Rec.sTypoAscender;
 		
 		/// <summary>
 		/// The descender value, useful for computing a default line spacing in conjunction with unitsPerEm.
 		/// </summary>
-		public short TypographicDescender
-		{
-			get
-			{
-				return rec.sTypoDescender;
-			}
-		}
+		public short TypographicDescender => Rec.sTypoDescender;
 		
 		/// <summary>
 		/// The line gap value, useful for computing a default line spacing in conjunction with unitsPerEm.
 		/// </summary>
-		public short TypographicLineGap
-		{
-			get
-			{
-				return rec.sTypoLineGap;
-			}
-		}
+		public short TypographicLineGap => Rec.sTypoLineGap;
 
 		/// <summary>
 		/// The ascender metric for Windows, usually set to yMax. Windows will clip glyphs that go above this value.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort WindowsAscent
-		{
-			get
-			{
-				return rec.usWinAscent;
-			}
-		}
+		public ushort WindowsAscent => Rec.usWinAscent;
 
 		/// <summary>
 		/// The descender metric for Windows, usually set to yMin. Windows will clip glyphs that go below this value.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort WindowsDescent
-		{
-			get
-			{
-				return rec.usWinDescent;
-			}
-		}
+		public ushort WindowsDescent => Rec.usWinDescent;
 
 		/// <summary>
 		/// Specifies the code pages encompassed by this font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint CodePageRange1
-		{
-			get
-			{
-				return (uint)rec.ulCodePageRange1;
-			}
-		}
+		public uint CodePageRange1 => (uint)Rec.ulCodePageRange1;
 
 		/// <summary>
 		/// Specifies the code pages encompassed by this font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint CodePageRange2
-		{
-			get
-			{
-				return (uint)rec.ulUnicodeRange1;
-			}
-		}
+		public uint CodePageRange2 => (uint)Rec.ulUnicodeRange1;
 
 		/// <summary>
 		/// The approximate height of non-ascending lowercase letters relative to the baseline.
 		/// </summary>
-		public short Height
-		{
-			get
-			{
-				return rec.sxHeight;
-			}
-		}
+		public short Height => Rec.sxHeight;
 		
 		/// <summary>
 		/// The approximate height of uppercase letters relative to the baseline.
 		/// </summary>
-		public short CapHeight
-		{
-			get
-			{
-				return rec.sCapHeight;
-			}
-		}
+		public short CapHeight => Rec.sCapHeight;
 
 		/// <summary>
 		/// The Unicode index (character code)  of the glyph to use when a glyph doesn't exist for the requested character.
 		/// Since this value is limited to 0xFFFF, applications should not use this field.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort DefaultChar
-		{
-			get
-			{
-				return rec.usDefaultChar;
-			}
-		}
+		public ushort DefaultChar => Rec.usDefaultChar;
 
 		/// <summary>
 		/// The Unicode index (character code)  of the glyph to use as the break character.
 		/// The 'space' character is normally the break character.
 		/// Since this value is limited to 0xFFFF, applications should not use this field.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort BreakChar
-		{
-			get
-			{
-				return rec.usBreakChar;
-			}
-		}
+		public ushort BreakChar => Rec.usBreakChar;
 
 		/// <summary>
 		/// The maximum number of characters needed to determine glyph context when applying features such as ligatures.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxContext
-		{
-			get
-			{
-				return rec.usMaxContext;
-			}
-		}
+		public ushort MaxContext => Rec.usMaxContext;
 
 		/// <summary>
 		/// The lowest point size at which the font starts to be used, in twips.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort LowerOpticalPointSize
-		{
-			get
-			{
-				return rec.usLowerOpticalPointSize;
-			}
-		}
+		public ushort LowerOpticalPointSize => Rec.usLowerOpticalPointSize;
 
 		/// <summary>
 		/// The highest point size at which the font is no longer used, in twips.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort UpperOpticalPointSize
-		{
-			get
-			{
-				return rec.usUpperOpticalPointSize;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<OS2Rec>(reference);
-			}
-		}
+		public ushort UpperOpticalPointSize => Rec.usUpperOpticalPointSize;
 
 		#endregion
 	}

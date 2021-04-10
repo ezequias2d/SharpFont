@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 using System.Runtime.InteropServices;
 
@@ -36,36 +37,13 @@ namespace SharpFont
 	/// </para><para>
 	/// You can however retrieve subglyph information with <see cref="GlyphSlot.GetSubGlyphInfo"/>.
 	/// </para></remarks>
-	public sealed class SubGlyph
+	public sealed class SubGlyph : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-
-		#endregion
 
 		#region Constructors
 
-		internal SubGlyph(IntPtr reference)
+		internal SubGlyph(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
-		}
-
-		#endregion
-
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
 		}
 
 		#endregion

@@ -26,95 +26,51 @@ using System;
 using System.Runtime.InteropServices;
 
 using SharpFont.Bdf.Internal;
+using SharpFont.Internal;
 
 namespace SharpFont.Bdf
 {
 	/// <summary>
 	/// This structure models a given BDF/PCF property.
 	/// </summary>
-	public class Property
+	public class Property : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private PropertyRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal Property(IntPtr reference)
+		internal Property(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref PropertyRec Rec => ref PInvokeHelper.PtrToRefStructure<PropertyRec>(Reference);
+
 		/// <summary>
 		/// Gets the property type.
 		/// </summary>
-		public PropertyType Type
-		{
-			get
-			{
-				return rec.type;
-			}
-		}
+		public PropertyType Type => Rec.Type;
 
 		/// <summary>
 		/// Gets the atom string, if type is <see cref="PropertyType.Atom"/>.
 		/// </summary>
-		public string Atom
-		{
-			get
-			{
-				// only this property throws an exception because the pointer could be to unmanaged memory not owned by
-				// the process.
-				if (rec.type != PropertyType.Atom)
-					throw new InvalidOperationException("The property type is not Atom.");
-
-				return Marshal.PtrToStringAnsi(rec.atom);
-			}
-		}
+		public string Atom =>
+			Rec.Type == PropertyType.Atom ?
+							Rec.U.AtomString :
+			// only this property throws an exception because the pointer could be to unmanaged memory not owned by
+			// the process.
+							throw new InvalidOperationException("The property type is not Atom.");
 
 		/// <summary>
 		/// Gets a signed integer, if type is <see cref="PropertyType.Integer"/>.
 		/// </summary>
-		public int Integer
-		{
-			get
-			{
-				return rec.integer;
-			}
-		}
+		public int Integer => Rec.U.Integer;
 
 		/// <summary>
 		/// Gets an unsigned integer, if type is <see cref="PropertyType.Cardinal"/>.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint Cardinal
-		{
-			get
-			{
-				return rec.cardinal;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<PropertyRec>(reference);
-			}
-		}
+		public uint Cardinal => Rec.U.Cardinal;
 
 		#endregion
 	}

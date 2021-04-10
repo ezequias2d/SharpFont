@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.MultipleMasters.Internal;
 
 namespace SharpFont.MultipleMasters
@@ -34,27 +34,14 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// This structure can't be used for GX var fonts.
 	/// </para></summary>
-	public class MMAxis
+	[StructLayout(LayoutKind.Sequential)]
+	public struct MMAxis
 	{
 		#region Fields
+		private readonly IntPtr name;
 
-		private IntPtr reference;
-		private MMAxisRec rec;
-
-		#endregion
-
-		#region Constructors
-
-		internal MMAxis(IntPtr reference)
-		{
-			Reference = reference;
-		}
-
-		internal MMAxis(MMAxisRec axisInternal)
-		{
-			this.rec = axisInternal;
-		}
-
+		private readonly IntPtr minimum;
+		private readonly IntPtr maximum;
 		#endregion
 
 		#region Properties
@@ -62,49 +49,17 @@ namespace SharpFont.MultipleMasters
 		/// <summary>
 		/// Gets the axis's name.
 		/// </summary>
-		public string Name
-		{
-			get
-			{
-				return rec.name;
-			}
-		}
+		public string Name => Marshal.PtrToStringAnsi(name);
 
 		/// <summary>
 		/// Gets the axis's minimum design coordinate.
 		/// </summary>
-		public int Minimum
-		{
-			get
-			{
-				return (int)rec.minimum;
-			}
-		}
+		public int Minimum => (int)minimum;
 
 		/// <summary>
 		/// Gets the axis's maximum design coordinate.
 		/// </summary>
-		public int Maximum
-		{
-			get
-			{
-				return (int)rec.maximum;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MMAxisRec>(reference);
-			}
-		}
+		public int Maximum => (int)maximum;
 
 		#endregion
 	}

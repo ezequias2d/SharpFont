@@ -29,7 +29,6 @@ namespace SharpFont
 	/// <summary>
 	/// The mode how the values of <see cref="Glyph.GetCBox"/> are returned.
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum GlyphBBoxMode : uint
 	{
 		/// <summary>Return unscaled font units.</summary>

@@ -33,93 +33,51 @@ namespace SharpFont
 	/// <summary>
 	/// The base charmap structure.
 	/// </summary>
-	public sealed class CharMap
+	public sealed class CharMap : NativeObject
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private CharMapRec rec;
-
-		private Face parentFace;
+		private readonly Face parentFace;
 
 		#endregion
 
 		#region Constructors
 
-		internal CharMap(IntPtr reference, Face parent)
+		internal CharMap(IntPtr reference, Face parent) : base(reference)
 		{
-			Reference = reference;
-			this.parentFace = parent;
+			parentFace = parent;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref CharMapRec Rec => ref PInvokeHelper.PtrToRefStructure<CharMapRec>(Reference);
+
 		/// <summary>
 		/// Gets a handle to the parent face object.
 		/// </summary>
-		public Face Face
-		{
-			get
-			{
-				return parentFace;
-			}
-		}
+		public Face Face => parentFace;
 
 		/// <summary>
 		/// Gets an <see cref="Encoding"/> tag identifying the charmap. Use this with
 		/// <see cref="SharpFont.Face.SelectCharmap"/>.
 		/// </summary>
-		[CLSCompliant(false)]
-		public Encoding Encoding
-		{
-			get
-			{
-				return rec.encoding;
-			}
-		}
+		public Encoding Encoding => Rec.encoding;
 
 		/// <summary>
 		/// Gets an ID number describing the platform for the following encoding ID. This comes directly from the
 		/// TrueType specification and should be emulated for other formats.
 		/// </summary>
-		[CLSCompliant(false)]
-		public PlatformId PlatformId
-		{
-			get
-			{
-				return rec.platform_id;
-			}
-		}
+		public PlatformId PlatformId => Rec.platform_id;
 
 		/// <summary>
 		/// Gets a platform specific encoding number. This also comes from the TrueType specification and should be
 		/// emulated similarly.
 		/// </summary>
-		[CLSCompliant(false)]
 		public ushort EncodingId
-		{
-			get
-			{
-				//TODO find some way of getting a proper encoding ID enum...
-				return rec.encoding_id;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<CharMapRec>(reference);
-			}
-		}
+			//TODO find some way of getting a proper encoding ID enum...
+			=> Rec.encoding_id;
 
 		#endregion
 
@@ -131,10 +89,7 @@ namespace SharpFont
 		/// Retrieve index of a given charmap.
 		/// </summary>
 		/// <returns>The index into the array of character maps within the face to which ‘charmap’ belongs.</returns>
-		public int GetCharmapIndex()
-		{
-			return FT.FT_Get_Charmap_Index(Reference);
-		}
+		public int GetCharmapIndex() => FT.FT_Get_Charmap_Index(Reference);
 
 		#endregion
 
@@ -148,20 +103,13 @@ namespace SharpFont
 		/// The language ID of ‘charmap’. If ‘charmap’ doesn't belong to a TrueType/sfnt face, just return 0 as the
 		/// default value.
 		/// </returns>
-		[CLSCompliant(false)]
-		public uint GetCMapLanguageId()
-		{
-			return FT.FT_Get_CMap_Language_ID(Reference);
-		}
+		public uint GetCMapLanguageId() => FT.FT_Get_CMap_Language_ID(Reference);
 
 		/// <summary>
 		/// Return TrueType/sfnt specific cmap format.
 		/// </summary>
 		/// <returns>The format of ‘charmap’. If ‘charmap’ doesn't belong to a TrueType/sfnt face, return -1.</returns>
-		public int GetCMapFormat()
-		{
-			return FT.FT_Get_CMap_Format(Reference);
-		}
+		public int GetCMapFormat() => FT.FT_Get_CMap_Format(Reference);
 
 		#endregion
 

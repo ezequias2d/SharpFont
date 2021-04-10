@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.MultipleMasters.Internal;
 
 namespace SharpFont.MultipleMasters
@@ -34,63 +34,31 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// This structure can't be used for MM fonts.
 	/// </para></summary>
-	public class VarNamedStyle
+	public class VarNamedStyle : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private VarNamedStyleRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal VarNamedStyle(IntPtr reference)
+		internal VarNamedStyle(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
+
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref VarNamedStyleRec Rec => ref PInvokeHelper.PtrToRefStructure<VarNamedStyleRec>(Reference);
+
 		/// <summary>
 		/// Gets the design coordinates for this style. This is an array with one entry for each axis.
 		/// </summary>
-		public IntPtr Coordinates
-		{
-			get
-			{
-				return rec.coords;
-			}
-		}
+		public IntPtr Coordinates => Rec.coords;
 
 		/// <summary>
 		/// Gets the entry in ‘name’ table identifying this style.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint StrId
-		{
-			get
-			{
-				return rec.strid;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<VarNamedStyleRec>(reference);
-			}
-		}
-
+		public uint StrId => Rec.strid;
 		#endregion
 	}
 }

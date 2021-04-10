@@ -40,7 +40,6 @@ namespace SharpFont
 	/// </remarks>
 	/// <see href="http://www.adobe.com/devnet/acrobat/pdfs/FontPolicies.pdf"/>
 	[Flags]
-	[CLSCompliant(false)]
 	public enum EmbeddingTypes : ushort
 	{
 		/// <summary>

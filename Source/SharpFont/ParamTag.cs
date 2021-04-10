@@ -33,14 +33,14 @@ namespace SharpFont
 	public enum ParamTag : uint
 	{
 		/// <summary>
-		/// A constant used as the tag of <see cref="Parameter"/> structures to make <see cref="Library.OpenFace"/>
+		/// A constant used as the tag of <see cref="Parameter"/> structures to make <see cref="Face(Library, OpenArgs, int)"/>
 		/// ignore preferred family subfamily names in ‘name’ table since OpenType version 1.4. For backwards
 		/// compatibility with legacy systems which has 4-face-per-family restriction.
 		/// </summary>
 		IgnorePreferredFamily = ('i' << 24 | 'g' << 16 | 'p' << 8 | 'f'),
 
 		/// <summary>
-		/// A constant used as the tag of <see cref="Parameter"/> structures to make <see cref="Library.OpenFace"/>
+		/// A constant used as the tag of <see cref="Parameter"/> structures to make <see cref="Face(Library, OpenArgs, int)"/>
 		/// ignore preferred subfamily names in ‘name’ table since OpenType version 1.4. For backwards compatibility
 		/// with legacy systems which has 4-face-per-family restriction.
 		/// </summary>
@@ -55,7 +55,7 @@ namespace SharpFont
 		/// <summary>
 		/// A constant used as the tag of an <see cref="Parameter"/> structure to indicate that unpatented methods only
 		/// should be used by the TrueType bytecode interpreter for a typeface opened by
-		/// <see cref="Library.OpenFace"/>.
+		/// <see cref="Face(Library, OpenArgs, int)"/>.
 		/// </summary>
 		UnpatentedHinting = ('u' << 24 | 'n' << 16 | 'p' << 8 | 'a')
 	}

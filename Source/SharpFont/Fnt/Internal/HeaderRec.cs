@@ -28,13 +28,14 @@ using System.Runtime.InteropServices;
 namespace SharpFont.Fnt.Internal
 {
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct HeaderRec
+	internal unsafe struct HeaderRec
 	{
+		internal const int CopyrightSize = 60;
+
 		internal ushort version;
 		internal UIntPtr file_size;
 
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
-		internal byte[] copyright;
+		internal fixed byte copyright[CopyrightSize];
 		internal ushort file_type;
 		internal ushort nominal_point_size;
 		internal ushort vertical_resolution;
@@ -68,7 +69,9 @@ namespace SharpFont.Fnt.Internal
 		internal ushort C_space;
 		internal ushort color_table_offset;
 
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-		internal UIntPtr[] reserved1;
+		internal UIntPtr reserved1;
+		internal UIntPtr reserved2;
+		internal UIntPtr reserved3;
+		internal UIntPtr reserved4;
 	}
 }

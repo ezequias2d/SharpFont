@@ -42,11 +42,6 @@ namespace SharpFont
 	/// </para></remarks>
 	public class Span : NativeObject
 	{
-		#region Fields
-
-		private SpanRec rec;
-
-		#endregion
 
 		#region Constructors
 
@@ -58,54 +53,23 @@ namespace SharpFont
 
 		#region Properties
 
+		private ref SpanRec Rec => ref PInvokeHelper.PtrToRefStructure<SpanRec>(Reference);
+
 		/// <summary>
 		/// Gets the span's horizontal start position.
 		/// </summary>
-		public short X
-		{
-			get
-			{
-				return rec.x;
-			}
-		}
+		public short X => Rec.X;
 
 		/// <summary>
 		/// Gets the span's length in pixels.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort Length
-		{
-			get
-			{
-				return rec.len;
-			}
-		}
+		public ushort Length => Rec.Length;
 
 		/// <summary>
 		/// Gets the span color/coverage, ranging from 0 (background) to 255 (foreground). Only used for anti-aliased
 		/// rendering.
 		/// </summary>
-		public byte Coverage
-		{
-			get
-			{
-				return rec.coverage;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<SpanRec>(value);
-			}
-		}
+		public byte Coverage => Rec.Coverage;
 
 		#endregion
 	}

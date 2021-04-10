@@ -130,6 +130,13 @@ namespace SharpFont
 		[DllImport(FreetypeDll, CallingConvention = CallConvention)]
 		internal static extern Error FT_Attach_Stream(IntPtr face, IntPtr parameters);
 
+		/// <summary>
+		/// A counter gets initialized to 1 at the time an structure is created.
+		/// This function increments the counter. then only destroys a face if
+		/// the counter is 1, otherwise it simply decrements the counter.
+		/// </summary>
+		/// <param name="face">A handle to a target face object.</param>
+		/// <returns>FreeType <see cref="Error"/>.</returns>
 		[DllImport(FreetypeDll, CallingConvention = CallConvention)]
 		internal static extern Error FT_Reference_Face(IntPtr face);
 
@@ -329,10 +336,10 @@ namespace SharpFont
 		internal static extern bool FT_Has_PS_Glyph_Names(IntPtr face);
 
 		[DllImport(FreetypeDll, CallingConvention = CallConvention)]
-		internal static extern Error FT_Get_PS_Font_Info(IntPtr face, out PostScript.Internal.FontInfoRec afont_info);
+		internal static extern Error FT_Get_PS_Font_Info(IntPtr face, out FontInfo afont_info);
 
 		[DllImport(FreetypeDll, CallingConvention = CallConvention)]
-		internal static extern Error FT_Get_PS_Font_Private(IntPtr face, out PostScript.Internal.PrivateRec afont_private);
+		internal static extern Error FT_Get_PS_Font_Private(IntPtr face, out Private afont_private);
 
 		[DllImport(FreetypeDll, CallingConvention = CallConvention)]
 		internal static extern int FT_Get_PS_Font_Value(IntPtr face, DictionaryKeys key, uint idx, ref IntPtr value, int value_len);

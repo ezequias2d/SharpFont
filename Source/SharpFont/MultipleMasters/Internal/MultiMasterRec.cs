@@ -33,7 +33,9 @@ namespace SharpFont.MultipleMasters.Internal
 		internal uint num_axis;
 		internal uint num_designs;
 
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-		internal MMAxisRec[] axis;
+		internal MMAxis axis1;
+		internal MMAxis axis2;
+		internal MMAxis axis3;
+		internal MMAxis axis4;
 	}
 }

@@ -52,12 +52,21 @@ namespace SharpFont
 	/// put the address of the glyph cache destructor in the ‘finalizer’ field).
 	/// </para></summary>
 	[Obsolete("Use the Tag property and Disposed event.")]
-	public class Generic
+	[StructLayout(LayoutKind.Sequential)]
+	public struct Generic
 	{
 		#region Fields
+/// <summary>
+		/// Gets or sets a typeless pointer to any client-specified data. This field is completely ignored by the
+		/// FreeType library.
+		/// </summary>
+		public IntPtr Data;
 
-		private GenericRec rec;
-
+		/// <summary>
+		/// Gets or sets a pointer to a <see cref="GenericFinalizer"/> function, which will be called when the object
+		/// is destroyed. If this field is set to NULL, no code will be called.
+		/// </summary>
+		public IntPtr Finalizer;
 		#endregion
 
 		#region Constructors
@@ -71,84 +80,8 @@ namespace SharpFont
 		/// <param name="finalizer">A delegate that gets called when the contained object gets finalized.</param>
 		public Generic(IntPtr data, GenericFinalizer finalizer)
 		{
-			rec.data = data;
-			//rec.finalizer = finalizer;
-		}
-
-		internal Generic(GenericRec genInternal)
-		{
-			rec = genInternal;
-		}
-
-		internal Generic(IntPtr reference)
-		{
-			rec = PInvokeHelper.PtrToStructure<GenericRec>(reference);
-		}
-
-		internal Generic(IntPtr reference, int offset)
-			: this(new IntPtr(reference.ToInt64() + offset))
-		{
-		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// Gets the size of a <see cref="Generic"/>, in bytes.
-		/// </summary>
-		public static int SizeInBytes
-		{
-			get
-			{
-				return Marshal.SizeOf(typeof(GenericRec));
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets a typeless pointer to any client-specified data. This field is completely ignored by the
-		/// FreeType library.
-		/// </summary>
-		public IntPtr Data
-		{
-			get
-			{
-				return rec.data;
-			}
-			
-			set
-			{
-				rec.data = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets a pointer to a <see cref="GenericFinalizer"/> function, which will be called when the object
-		/// is destroyed. If this field is set to NULL, no code will be called.
-		/// </summary>
-		/*public GenericFinalizer Finalizer
-		{
-			get
-			{
-				return rec.finalizer;
-			}
-
-			set
-			{
-				rec.finalizer = value;
-			}
-		}*/
-
-		#endregion
-
-		#region Methods
-
-		//TODO make this private and build it into the setters if the reference isn't IntPtr.Zero.
-		internal void WriteToUnmanagedMemory(IntPtr location)
-		{
-			Marshal.WriteIntPtr(location, rec.data);
-			//Marshal.WriteIntPtr(location, IntPtr.Size, Marshal.GetFunctionPointerForDelegate(rec.finalizer));
-			Marshal.WriteIntPtr(location, IntPtr.Size, rec.finalizer);
+			Data = data;
+			Finalizer = Marshal.GetFunctionPointerForDelegate(finalizer);
 		}
 
 		#endregion

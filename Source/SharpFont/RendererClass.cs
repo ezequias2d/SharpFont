@@ -32,92 +32,50 @@ namespace SharpFont
 	/// <summary>
 	/// The renderer module class descriptor.
 	/// </summary>
-	public class RendererClass
+	public class RendererClass : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private RendererClassRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal RendererClass(IntPtr reference)
+		internal RendererClass(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref RendererClassRec Rec => ref PInvokeHelper.PtrToRefStructure<RendererClassRec>(Reference);
+
 		/// <summary>
 		/// Gets the root <see cref="ModuleClass"/> fields.
 		/// </summary>
-		public ModuleClass Root
-		{
-			get
-			{
-				return new ModuleClass(reference);
-			}
-		}
+		public ModuleClass Root => new ModuleClass(Reference);
 
 		/// <summary>
 		/// Gets the glyph image format this renderer handles.
 		/// </summary>
-		[CLSCompliant(false)]
-		public GlyphFormat Format
-		{
-			get
-			{
-				return rec.glyph_format;
-			}
-		}
+		public GlyphFormat Format => Rec.glyph_format;
 
 		/// <summary>
 		/// Gets a method used to render the image that is in a given glyph slot into a bitmap.
 		/// </summary>
-		public IntPtr RenderGlyph
-		{
-			get
-			{
-				return rec.render_glyph;
-			}
-		}
+		public IntPtr RenderGlyph => Rec.render_glyph;
 
 		/// <summary>
 		/// Gets a method used to transform the image that is in a given glyph slot.
 		/// </summary>
-		public IntPtr TransformGlyph
-		{
-			get
-			{
-				return rec.transform_glyph;
-			}
-		}
+		public IntPtr TransformGlyph => Rec.transform_glyph;
 
 		/// <summary>
 		/// Gets a method used to access the glyph's cbox.
 		/// </summary>
-		public IntPtr GetGlyphCBox
-		{
-			get
-			{
-				return rec.get_glyph_cbox;
-			}
-		}
+		public IntPtr GetGlyphCBox => Rec.get_glyph_cbox;
 
 		/// <summary>
 		/// Gets a method used to pass additional parameters.
 		/// </summary>
-		public IntPtr SetMode
-		{
-			get
-			{
-				return rec.set_mode;
-			}
-		}
+		public IntPtr SetMode => Rec.set_mode;
 
 		/// <summary>
 		/// Gets a pointer to its raster's class.
@@ -127,24 +85,12 @@ namespace SharpFont
 		{
 			get
 			{
-				return new RasterFuncs(PInvokeHelper.AbsoluteOffsetOf<RendererClassRec>(Reference, "raster_class"));
+				unsafe
+				{
+					return *(RasterFuncs*)Rec.raster_class;
+				}
 			}
 		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<RendererClassRec>(reference);
-			}
-		}
-
 		#endregion
 	}
 }

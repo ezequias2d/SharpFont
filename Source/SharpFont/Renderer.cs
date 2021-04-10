@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 using System.Runtime.InteropServices;
 
@@ -32,38 +33,16 @@ namespace SharpFont
 	/// a bitmap, when necessary. Each renderer supports a given glyph image format, and one or more target surface
 	/// depths.
 	/// </summary>
-	public class Renderer
+	public class Renderer : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-
-		#endregion
 
 		#region Constructors
 
-		internal Renderer(IntPtr reference)
+		internal Renderer(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
-		}
-
-		#endregion
 	}
 }

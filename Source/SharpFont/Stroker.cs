@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 
 namespace SharpFont
@@ -29,12 +30,20 @@ namespace SharpFont
 	/// <summary>
 	/// Opaque handler to a path stroker object.
 	/// </summary>
-	public class Stroker : IDisposable
+	public class Stroker : DisposableNativeObject
 	{
-		#region Fields
+		#region static
+		private static IntPtr NewStroke(Library library)
+		{
+			Error err = FT.FT_Stroker_New(library.Reference, out var strokerRef);
 
-		private IntPtr reference;
-		private bool disposed;
+			if (err != Error.Ok)
+				throw new FreeTypeException(err);
+
+			return strokerRef;
+		}
+		#endregion
+		#region Fields
 
 		private Library parentLibrary;
 
@@ -46,59 +55,10 @@ namespace SharpFont
 		/// Initializes a new instance of the <see cref="Stroker"/> class.
 		/// </summary>
 		/// <param name="library">FreeType library handle.</param>
-		public Stroker(Library library)
+		public Stroker(Library library) : base(NewStroke(library))
 		{
-			IntPtr strokerRef;
-			Error err = FT.FT_Stroker_New(library.Reference, out strokerRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			Reference = strokerRef;
 			library.AddChildStroker(this);
 			parentLibrary = library;
-		}
-
-		/// <summary>
-		/// Finalizes an instance of the <see cref="Stroker"/> class.
-		/// </summary>
-		~Stroker()
-		{
-			Dispose(false);
-		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// Gets a value indicating whether the <see cref="Stroker"/> has been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get
-			{
-				return disposed;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
-				reference = value;
-			}
 		}
 
 		#endregion
@@ -118,25 +78,14 @@ namespace SharpFont
 		/// The miter limit for the <see cref="StrokerLineJoin.MiterFixed"/> and
 		/// <see cref="StrokerLineJoin.MiterVariable"/> line join styles, expressed as 16.16 fixed point value.
 		/// </param>
-		public void Set(int radius, StrokerLineCap lineCap, StrokerLineJoin lineJoin, Fixed16Dot16 miterLimit)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
+		public void Set(int radius, StrokerLineCap lineCap, StrokerLineJoin lineJoin, Fixed16Dot16 miterLimit) =>
 			FT.FT_Stroker_Set(Reference, radius, lineCap, lineJoin, (IntPtr)miterLimit.Value);
-		}
 
 		/// <summary>
 		/// Reset a stroker object without changing its attributes. You should call this function before beginning a
 		/// new series of calls to <see cref="BeginSubPath"/> or <see cref="EndSubPath"/>.
 		/// </summary>
-		public void Rewind()
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
-			FT.FT_Stroker_Rewind(Reference);
-		}
+		public void Rewind() => FT.FT_Stroker_Rewind(Reference);
 
 		/// <summary>
 		/// A convenience function used to parse a whole outline with the stroker. The resulting outline(s) can be
@@ -157,9 +106,6 @@ namespace SharpFont
 		/// </param>
 		public void ParseOutline(Outline outline, bool opened)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			if (outline == null)
 				throw new ArgumentNullException("outline");
 
@@ -180,9 +126,6 @@ namespace SharpFont
 		/// <param name="open">A boolean. If 1, the sub-path is treated as an open one.</param>
 		public void BeginSubPath(FTVector to, bool open)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_BeginSubPath(Reference, ref to, open);
 
 			if (err != Error.Ok)
@@ -198,9 +141,6 @@ namespace SharpFont
 		/// </remarks>
 		public void EndSubPath()
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_EndSubPath(Reference);
 
 			if (err != Error.Ok)
@@ -216,9 +156,6 @@ namespace SharpFont
 		/// <param name="to">A pointer to the destination point.</param>
 		public void LineTo(FTVector to)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_LineTo(Reference, ref to);
 
 			if (err != Error.Ok)
@@ -235,9 +172,6 @@ namespace SharpFont
 		/// <param name="to">A pointer to the destination point.</param>
 		public void ConicTo(FTVector control, FTVector to)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_ConicTo(Reference, ref control, ref to);
 
 			if (err != Error.Ok)
@@ -255,9 +189,6 @@ namespace SharpFont
 		/// <param name="to">A pointer to the destination point.</param>
 		public void CubicTo(FTVector control1, FTVector control2, FTVector to)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_CubicTo(Reference, ref control1, ref control2, ref to);
 
 			if (err != Error.Ok)
@@ -281,12 +212,8 @@ namespace SharpFont
 		/// <param name="border">The border index.</param>
 		/// <param name="pointsCount">The number of points.</param>
 		/// <param name="contoursCount">The number of contours.</param>
-		[CLSCompliant(false)]
 		public void GetBorderCounts(StrokerBorder border, out uint pointsCount, out uint contoursCount)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_GetBorderCounts(Reference, border, out pointsCount, out contoursCount);
 
 			if (err != Error.Ok)
@@ -316,9 +243,6 @@ namespace SharpFont
 		/// <param name="outline">The target outline handle.</param>
 		public void ExportBorder(StrokerBorder border, Outline outline)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			if (outline == null)
 				throw new ArgumentNullException("outline");
 
@@ -331,12 +255,8 @@ namespace SharpFont
 		/// </summary>
 		/// <param name="pointsCount">The number of points.</param>
 		/// <param name="contoursCount">The number of contours.</param>
-		[CLSCompliant(false)]
 		public void GetCounts(out uint pointsCount, out uint contoursCount)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Stroker_GetCounts(Reference, out pointsCount, out contoursCount);
 
 			if (err != Error.Ok)
@@ -353,38 +273,21 @@ namespace SharpFont
 		/// <param name="outline">The target outline handle.</param>
 		public void Export(Outline outline)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Stroker", "Cannot access a disposed object.");
-
 			if (outline == null)
 				throw new ArgumentNullException("outline");
 
 			FT.FT_Stroker_Export(Reference, outline.Reference);
 		}
 
-		/// <summary>
-		/// Disposes an instance of the <see cref="Stroker"/> class.
-		/// </summary>
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+			FT.FT_Stroker_Done(Reference);
 
-		private void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				disposed = true;
-				
-				FT.FT_Stroker_Done(reference);
-
-				// removes itself from the parent Library, with a check to prevent this from happening when Library is
-				// being disposed (Library disposes all it's children with a foreach loop, this causes an
-				// InvalidOperationException for modifying a collection during enumeration)
-				if (!parentLibrary.IsDisposed)
-					parentLibrary.RemoveChildStroker(this);
-			}
+			// removes itself from the parent Library, with a check to prevent this from happening when Library is
+			// being disposed (Library disposes all it's children with a foreach loop, this causes an
+			// InvalidOperationException for modifying a collection during enumeration)
+			if (!parentLibrary.IsDisposed)
+				parentLibrary.RemoveChildStroker(this);
 		}
 
 		#endregion

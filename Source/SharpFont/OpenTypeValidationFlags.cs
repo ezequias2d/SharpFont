@@ -31,7 +31,6 @@ namespace SharpFont
 	/// should be validated.
 	/// </summary>
 	[Flags]
-	[CLSCompliant(false)]
 	public enum OpenTypeValidationFlags : uint
 	{
 		/// <summary>Validate BASE table.</summary>

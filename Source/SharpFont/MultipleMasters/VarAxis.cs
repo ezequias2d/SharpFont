@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.MultipleMasters.Internal;
 
 namespace SharpFont.MultipleMasters
@@ -32,108 +32,50 @@ namespace SharpFont.MultipleMasters
 	/// <summary>
 	/// A simple structure used to model a given axis in design space for Multiple Masters and GX var fonts.
 	/// </summary>
-	public class VarAxis
+	public class VarAxis : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private VarAxisRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal VarAxis(IntPtr reference)
+		internal VarAxis(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private VarAxisRec Rec => PInvokeHelper.PtrToRefStructure<VarAxisRec>(Reference);
+
 		/// <summary>
 		/// Gets the axis's name. Not always meaningful for GX.
 		/// </summary>
-		public string Name
-		{
-			get
-			{
-				return rec.name;
-			}
-		}
+		public string Name => Rec.Name;
 
 		/// <summary>
 		/// Gets the axis's minimum design coordinate.
 		/// </summary>
-		public int Minimum
-		{
-			get
-			{
-				return (int)rec.minimum;
-			}
-		}
+		public int Minimum => (int)Rec.minimum;
 
 		/// <summary>
 		/// Gets the axis's default design coordinate. FreeType computes meaningful default values for MM; it is then
 		/// an integer value, not in 16.16 format.
 		/// </summary>
-		public int Default
-		{
-			get
-			{
-				return (int)rec.def;
-			}
-		}
+		public int Default => (int)Rec.def;
 
 		/// <summary>
 		/// Gets the axis's maximum design coordinate.
 		/// </summary>
-		public int Maximum
-		{
-			get
-			{
-				return (int)rec.maximum;
-			}
-		}
+		public int Maximum => (int)Rec.maximum;
 
 		/// <summary>
 		/// Gets the axis's tag (the GX equivalent to ‘name’). FreeType provides default values for MM if possible.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint Tag
-		{
-			get
-			{
-				return (uint)rec.tag;
-			}
-		}
+		public uint Tag => (uint)Rec.tag;
 
 		/// <summary>
 		/// Gets the entry in ‘name’ table (another GX version of ‘name’). Not meaningful for MM.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint StrId
-		{
-			get
-			{
-				return rec.strid;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<VarAxisRec>(reference);
-			}
-		}
+		public uint StrId => Rec.strid;
 
 		#endregion
 	}

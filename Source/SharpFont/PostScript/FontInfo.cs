@@ -33,124 +33,70 @@ namespace SharpFont.PostScript
 	/// A structure used to model a Type 1 or Type 2 FontInfo dictionary. Note that for Multiple Master fonts, each
 	/// instance has its own FontInfo dictionary.
 	/// </summary>
-	public class FontInfo
+	[StructLayout(LayoutKind.Sequential)]
+	public struct FontInfo
 	{
 		#region Fields
+		internal IntPtr version;
+		internal IntPtr notice;
+		internal IntPtr full_name;
+		internal IntPtr family_name;
+		internal IntPtr weight;
 
-		private FontInfoRec rec;
-
-		#endregion
-
-		#region Constructors
-
-		internal FontInfo(FontInfoRec rec)
-		{
-			this.rec = rec;
-		}
+		internal IntPtr italic_angle;
+		internal byte is_fixed_pitch;
+		internal short underline_position;
+		internal ushort underline_thickness;
 
 		#endregion
 
 		#region Properties
 
+
 		/// <summary>
 		/// The version of the font.
 		/// </summary>
-		public string Version
-		{
-			get
-			{
-				return rec.version;
-			}
-		}
+		public string Version => Marshal.PtrToStringAnsi(version);
 
 		/// <summary>
 		/// The copyright notice for the font.
 		/// </summary>
-		public string Notice
-		{
-			get
-			{
-				return rec.notice;
-			}
-		}
+		public string Notice => Marshal.PtrToStringAnsi(notice);
 
 		/// <summary>
 		/// Gets the font's full name.
 		/// </summary>
-		public string FullName
-		{
-			get
-			{
-				return rec.full_name;
-			}
-		}
+		public string FullName => Marshal.PtrToStringAnsi(full_name);
 
 		/// <summary>
 		/// Gets the font's family name.
 		/// </summary>
-		public string FamilyName
-		{
-			get
-			{
-				return rec.family_name;
-			}
-		}
+		public string FamilyName => Marshal.PtrToStringAnsi(family_name);
 
 		/// <summary>
 		/// Gets the weight description of the font
 		/// </summary>
-		public string Weight
-		{
-			get
-			{
-				return rec.weight;
-			}
-		}
+		public string Weight => Marshal.PtrToStringAnsi(weight);
 
 		/// <summary>
 		/// Gets italic angle of the font.
 		/// </summary>
-		public int ItalicAngle
-		{
-			get
-			{
-				return (int)rec.italic_angle;
-			}
-		}
+		public int ItalicAngle => (int)italic_angle;
 
 		/// <summary>
 		/// Gets whether the font is fixed pitch.
 		/// </summary>
-		public bool IsFixedPitch
-		{
-			get
-			{
-				return rec.is_fixed_pitch == 1;
-			}
-		}
+		public bool IsFixedPitch => is_fixed_pitch == 1;
 
 		/// <summary>
 		/// Gets the position of the  underline.
 		/// </summary>
-		public short UnderlinePosition
-		{
-			get
-			{
-				return rec.underline_position;
-			}
-		}
+		public short UnderlinePosition => underline_position;
 
 		/// <summary>
 		/// Gets the thickness of the underline stroke.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort UnderlineThickness
-		{
-			get
-			{
-				return rec.underline_thickness;
-			}
-		}
+		public ushort UnderlineThickness => underline_thickness;
 
 		#endregion
 	}

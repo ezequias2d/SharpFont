@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.TrueType.Internal;
 
 namespace SharpFont.TrueType
@@ -36,222 +36,98 @@ namespace SharpFont.TrueType
 	/// <remarks>
 	/// This structure is only used during font loading.
 	/// </remarks>
-	public class MaxProfile
+	public class MaxProfile : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private MaxProfileRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal MaxProfile(IntPtr reference)
+		internal MaxProfile(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
+		private ref MaxProfileRec Rec => ref PInvokeHelper.PtrToRefStructure<MaxProfileRec>(Reference);
 
 		/// <summary>
 		/// Gets the version number.
 		/// </summary>
-		public int Version
-		{
-			get
-			{
-				return (int)rec.version;
-			}
-		}
+		public int Version => (int)Rec.version;
 		
 		/// <summary>
 		/// Gets the number of glyphs in this TrueType font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort GlyphCount
-		{
-			get
-			{
-				return rec.numGlyphs;
-			}
-		}
+		public ushort GlyphCount => Rec.numGlyphs;
 
 		/// <summary>
 		/// Gets the maximum number of points in a non-composite TrueType glyph. See also the structure element
 		/// ‘maxCompositePoints’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxPoints
-		{
-			get
-			{
-				return rec.maxPoints;
-			}
-		}
+		public ushort MaxPoints => Rec.maxPoints;
 
 		/// <summary>
 		/// Gets the maximum number of contours in a non-composite TrueType glyph. See also the structure element
 		/// ‘maxCompositeContours’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxContours
-		{
-			get
-			{
-				return rec.maxContours;
-			}
-		}
+		public ushort MaxContours => Rec.maxContours;
 
 		/// <summary>
 		/// Gets the maximum number of points in a composite TrueType glyph. See also the structure element
 		/// ‘maxPoints’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxCompositePoints
-		{
-			get
-			{
-				return rec.maxCompositePoints;
-			}
-		}
+		public ushort MaxCompositePoints => Rec.maxCompositePoints;
 
 		/// <summary>
 		/// Gets the maximum number of contours in a composite TrueType glyph. See also the structure element
 		/// ‘maxContours’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxCompositeContours
-		{
-			get
-			{
-				return rec.maxCompositeContours;
-			}
-		}
+		public ushort MaxCompositeContours => Rec.maxCompositeContours;
 
 		/// <summary>
 		/// Gets the maximum number of zones used for glyph hinting.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxZones
-		{
-			get
-			{
-				return rec.maxZones;
-			}
-		}
+		public ushort MaxZones => Rec.maxZones;
 
 		/// <summary>
 		/// Gets the maximum number of points in the twilight zone used for glyph hinting.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxTwilightPoints
-		{
-			get
-			{
-				return rec.maxTwilightPoints;
-			}
-		}
+		public ushort MaxTwilightPoints => Rec.maxTwilightPoints;
 
 		/// <summary>
 		/// Gets the maximum number of elements in the storage area used for glyph hinting.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxStorage
-		{
-			get
-			{
-				return rec.maxStorage;
-			}
-		}
+		public ushort MaxStorage => Rec.maxStorage;
 
 		/// <summary>
 		/// Gets the maximum number of function definitions in the TrueType bytecode for this font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxFunctionDefs
-		{
-			get
-			{
-				return rec.maxFunctionDefs;
-			}
-		}
+		public ushort MaxFunctionDefs => Rec.maxFunctionDefs;
 
 		/// <summary>
 		/// Gets the maximum number of instruction definitions in the TrueType bytecode for this font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxInstructionDefs
-		{
-			get
-			{
-				return rec.maxInstructionDefs;
-			}
-		}
+		public ushort MaxInstructionDefs => Rec.maxInstructionDefs;
 
 		/// <summary>
 		/// Gets the maximum number of stack elements used during bytecode interpretation.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxStackElements
-		{
-			get
-			{
-				return rec.maxStackElements;
-			}
-		}
+		public ushort MaxStackElements => Rec.maxStackElements;
 
 		/// <summary>
 		/// Gets the maximum number of TrueType opcodes used for glyph hinting.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxSizeOfInstructions
-		{
-			get
-			{
-				return rec.maxSizeOfInstructions;
-			}
-		}
+		public ushort MaxSizeOfInstructions => Rec.maxSizeOfInstructions;
 
 		/// <summary>
 		/// Gets the maximum number of simple (i.e., non- composite) glyphs in a composite glyph.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxComponentElements
-		{
-			get
-			{
-				return rec.maxComponentElements;
-			}
-		}
+		public ushort MaxComponentElements => Rec.maxComponentElements;
 
 		/// <summary>
 		/// Gets the maximum nesting depth of composite glyphs.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaxComponentDepth
-		{
-			get
-			{
-				return rec.maxComponentDepth;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MaxProfileRec>(reference);
-			}
-		}
+		public ushort MaxComponentDepth => Rec.maxComponentDepth;
 
 		#endregion
 	}

@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.TrueType.Internal;
 
 namespace SharpFont.TrueType
@@ -34,146 +34,66 @@ namespace SharpFont.TrueType
 	/// structure does not reference the PostScript glyph names, which can be nevertheless accessed with the ‘ttpost’
 	/// module.
 	/// </summary>
-	public class Postscript
+	public class Postscript : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private PostscriptRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal Postscript(IntPtr reference)
+		internal Postscript(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
+		private ref PostscriptRec Rec => ref PInvokeHelper.PtrToRefStructure<PostscriptRec>(Reference);
 
 		/// <summary>
 		/// Gets the version of the table information.
 		/// </summary>
-		public int FormatType
-		{
-			get
-			{
-				return (int)rec.FormatType;
-			}
-		}
+		public int FormatType => (int)Rec.FormatType;
 		
 		/// <summary>
 		/// Gets the angle of italics, in degrees, counter-clockwise from vertical.
 		/// </summary>
-		public int ItalicAngle
-		{
-			get
-			{
-				return (int)rec.italicAngle;
-			}
-		}
+		public int ItalicAngle => (int)Rec.italicAngle;
 		
 		/// <summary>
 		/// Gets the recommended position of the underline.
 		/// </summary>
-		public short UnderlinePosition
-		{
-			get
-			{
-				return rec.underlinePosition;
-			}
-		}
+		public short UnderlinePosition => Rec.underlinePosition;
 		
 		/// <summary>
 		/// Gets the recommended thickness of the underline.
 		/// </summary>
-		public short UnderlineThickness
-		{
-			get
-			{
-				return rec.underlineThickness;
-			}
-		}
+		public short UnderlineThickness => Rec.underlineThickness;
 
 		/// <summary>
 		///
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint IsFixedPitch
-		{
-			get
-			{
-				return (uint)rec.isFixedPitch;
-			}
-		}
+		public uint IsFixedPitch => (uint)Rec.isFixedPitch;
 
 		/// <summary>
 		/// Gets the minimum amount of memory used by the font when an OpenType font is loaded.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint MinimumMemoryType42
-		{
-			get
-			{
-				return (uint)rec.minMemType42;
-			}
-		}
+		public uint MinimumMemoryType42 => (uint)Rec.minMemType42;
 
 		/// <summary>
 		/// Gets the maximum amount of memory used by the font when an OpenType font is loaded.
-		/// </summary>
-		[CLSCompliant(false)]
-		public uint MaximumMemoryType42
-		{
-			get
-			{
-				return (uint)rec.maxMemType42;
-			}
-		}
+		/// </summary>		
+		public uint MaximumMemoryType42 => (uint)Rec.maxMemType42;
 
 		/// <summary>
 		/// Gets the minimum amount of memory used by the font when an OpenType font is loaded as
 		/// a Type 1 font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint MinimumMemoryType1
-		{
-			get
-			{
-				return (uint)rec.minMemType1;
-			}
-		}
+		public uint MinimumMemoryType1 => (uint)Rec.minMemType1;
 
 		/// <summary>
 		/// Gets the maximum amount of memory used by the font when an OpenType font is loaded as
 		/// a Type 1 font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint MaximumMemoryType1
-		{
-			get
-			{
-				return (uint)rec.maxMemType1;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<PostscriptRec>(reference);
-			}
-		}
-
+		public uint MaximumMemoryType1 => (uint)Rec.maxMemType1;
 		#endregion
 	}
 }

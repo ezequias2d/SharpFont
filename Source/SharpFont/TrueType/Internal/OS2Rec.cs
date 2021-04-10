@@ -48,19 +48,15 @@ namespace SharpFont.TrueType.Internal
 		internal short sFamilyClass;
 
 		private fixed byte _panose[10];
-		internal byte[] panose
+		internal ReadOnlySpan<byte> Panose
 		{
 			get
 			{
-				var array = new byte[10];
-
-				fixed (byte* p = _panose)
+				unsafe
 				{
-					for (int i = 0; i < array.Length; i++)
-						array[i] = p[i];
+					fixed (byte* ptr = _panose)
+						return new ReadOnlySpan<byte>(ptr, 10).ToArray();
 				}
-
-				return array;
 			}
 		}
 
@@ -70,19 +66,15 @@ namespace SharpFont.TrueType.Internal
 		internal UIntPtr ulUnicodeRange4;
 
 		private fixed byte _achVendID[4];
-		internal byte[] achVendID
+		internal ReadOnlySpan<byte> AchVendID
 		{
 			get
 			{
-				var array = new byte[4];
-
-				fixed (byte* p = _achVendID)
+				unsafe
 				{
-					for (int i = 0; i < array.Length; i++)
-						array[i] = p[i];
+					fixed (byte* ptr = _achVendID)
+						return new ReadOnlySpan<byte>(ptr, 4).ToArray();
 				}
-
-				return array;
 			}
 		}
 

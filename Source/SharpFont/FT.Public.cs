@@ -244,10 +244,10 @@ namespace SharpFont
 		/// </summary>
 		/// <param name="fontName">Mac OS name of the font in ATS framework.</param>
 		/// <param name="path">
-		/// Buffer to store pathname of the file. For passing to <see cref="Library.NewFace"/>. The client must
+		/// Buffer to store pathname of the file. For passing to <see cref="Face(Library, string, int)"/>. The client must
 		/// allocate this buffer before calling this function.
 		/// </param>
-		/// <returns>Index of the face. For passing to <see cref="Library.NewFace"/>.</returns>
+		/// <returns>Index of the face. For passing to <see cref="Face(Library, string, int)"/>.</returns>
 		public static unsafe int GetFilePathFromMacAtsName(string fontName, byte[] path)
 		{
 			if (!IsMacOS)

@@ -30,7 +30,7 @@ namespace SharpFont.PostScript.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct FaceDictRec
 	{
-		internal PrivateRec private_dict;
+		internal Private private_dict;
 
 		internal uint len_buildchar;
 		internal IntPtr forcebold_threshold;

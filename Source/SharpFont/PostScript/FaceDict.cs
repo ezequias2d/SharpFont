@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.PostScript.Internal;
 
 namespace SharpFont.PostScript
@@ -32,177 +32,82 @@ namespace SharpFont.PostScript
 	/// <summary>
 	/// A structure used to represent data in a CID top-level dictionary.
 	/// </summary>
-	public class FaceDict
+	public class FaceDict : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private FaceDictRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal FaceDict(IntPtr reference)
+		internal FaceDict(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref FaceDictRec Rec => ref PInvokeHelper.PtrToRefStructure<FaceDictRec>(Reference);
+
 		/// <summary>
 		/// Gets the Private structure containing more information.
 		/// </summary>
-		public Private PrivateDictionary
-		{
-			get
-			{
-				return new Private(rec.private_dict);
-			}
-		}
+		public Private PrivateDictionary => Rec.private_dict;
 
 		/// <summary>
 		/// Gets the length of the BuildChar entry.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint BuildCharLength
-		{
-			get
-			{
-				return rec.len_buildchar;
-			}
-		}
+		public uint BuildCharLength => Rec.len_buildchar;
 
 		/// <summary>
 		/// Gets whether to force bold characters when a regular character has
 		/// strokes drawn 1-pixel wide.
 		/// </summary>
-		public int ForceBoldThreshold
-		{
-			get
-			{
-				return (int)rec.forcebold_threshold;
-			}
-		}
+		public int ForceBoldThreshold => (int)Rec.forcebold_threshold;
 
 		/// <summary>
 		/// Gets the width of stroke.
 		/// </summary>
-		public int StrokeWidth
-		{
-			get
-			{
-				return (int)rec.stroke_width;
-			}
-		}
+		public int StrokeWidth => (int)Rec.stroke_width;
 
 		/// <summary>
 		/// Gets hinting useful for rendering glyphs such as barcodes and logos that
 		/// have many counters.
 		/// </summary>
-		public int ExpansionFactor
-		{
-			get
-			{
-				return (int)rec.expansion_factor;
-			}
-		}
+		public int ExpansionFactor => (int)Rec.expansion_factor;
 
 		/// <summary>
 		/// Gets the method for painting strokes (fill or outline).
 		/// </summary>
-		public byte PaintType
-		{
-			get
-			{
-				return rec.paint_type;
-			}
-		}
+		public byte PaintType => Rec.paint_type;
 
 		/// <summary>
 		/// Gets the type of font. Must be set to 1 for all Type 1 fonts.
 		/// </summary>
-		public byte FontType
-		{
-			get
-			{
-				return rec.font_type;
-			}
-		}
+		public byte FontType => Rec.font_type;
 
 		/// <summary>
 		/// Gets the matrix that indicates scaling of space units.
 		/// </summary>
-		public FTMatrix FontMatrix
-		{
-			get
-			{
-				return rec.font_matrix;
-			}
-		}
+		public FTMatrix FontMatrix => Rec.font_matrix;
 
 		/// <summary>
 		/// Gets the offset of the font.
 		/// </summary>
-		public FTVector FontOffset
-		{
-			get
-			{
-				return rec.font_offset;
-			}
-		}
+		public FTVector FontOffset => Rec.font_offset;
 
 		/// <summary>
 		/// Gets the number of subroutines.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint SubrsCount
-		{
-			get
-			{
-				return rec.num_subrs;
-			}
-		}
+		public uint SubrsCount => Rec.num_subrs;
 
 		/// <summary>
 		/// Gets the offset in bytes, from the start of the
 		/// data section of the CIDFont to the beginning of the SubrMap.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint SubrmapOffset
-		{
-			get
-			{
-				return (uint)rec.subrmap_offset;
-			}
-		}
+		public uint SubrmapOffset => (uint)Rec.subrmap_offset;
 
 		/// <summary>
 		/// Gets the number of bytes needed to store the SD value.
 		/// </summary>
-		public int SDBytes
-		{
-			get
-			{
-				return rec.sd_bytes;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<FaceDictRec>(reference);
-			}
-		}
+		public int SDBytes => Rec.sd_bytes;
 
 		#endregion
 	}

@@ -31,10 +31,12 @@ namespace SharpFont.Internal
 	internal struct MemoryRec
 	{
 		internal IntPtr user;
-		internal AllocFunc alloc;
-		internal FreeFunc free;
-		internal ReallocFunc realloc;
+		internal IntPtr alloc;
+		internal IntPtr free;
+		internal IntPtr realloc;
 
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(MemoryRec)); } }
+		public AllocFunc Alloc => Marshal.GetDelegateForFunctionPointer<AllocFunc>(alloc);
+		public FreeFunc Free => Marshal.GetDelegateForFunctionPointer<FreeFunc>(free);
+		public ReallocFunc Realloc => Marshal.GetDelegateForFunctionPointer<ReallocFunc>(realloc);
 	}
 }

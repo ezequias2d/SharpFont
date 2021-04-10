@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.TrueType.Internal;
 
 namespace SharpFont.TrueType
@@ -33,7 +33,6 @@ namespace SharpFont.TrueType
 	/// Provides Mac style flags for the header table.
 	/// </summary>
 	[Flags]
-	[CLSCompliant(false)]
 	public enum HeaderMacStyles : ushort
 	{
 		/// <summary>
@@ -78,7 +77,6 @@ namespace SharpFont.TrueType
 	/// Provides flags for the header table.
 	/// </summary>
 	[Flags]
-	[CLSCompliant(false)]
 	public enum HeaderFLags : ushort
 	{
 		/// <summary>
@@ -165,230 +163,104 @@ namespace SharpFont.TrueType
 	/// <summary>
 	/// A structure used to model a TrueType font header table. All fields follow the TrueType specification.
 	/// </summary>
-	public class Header
+	public class Header : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private HeaderRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal Header(IntPtr reference)
+		internal Header(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref HeaderRec Rec => ref PInvokeHelper.PtrToRefStructure<HeaderRec>(Reference);
+
 		/// <summary>
 		/// The version number of this table definition.
 		/// </summary>
-		public int TableVersion
-		{
-			get
-			{
-				return (int)rec.Table_Version;
-			}
-		}
+		public int TableVersion => (int)Rec.Table_Version;
 
 		/// <summary>
 		/// The version number of the font, provided by the font manufacturer.
 		/// </summary>
-		public int FontRevision
-		{
-			get
-			{
-				return (int)rec.Font_Revision;
-			}
-		}
+		public int FontRevision => (int)Rec.Font_Revision;
 
 		/// <summary>
 		/// Provides a checksum of the font.
 		/// </summary>
-		public int ChecksumAdjust
-		{
-			get
-			{
-				return (int)rec.Checksum_Adjust;
-			}
-		}
+		public int ChecksumAdjust => (int)Rec.Checksum_Adjust;
 
 		/// <summary>
 		/// Gets the constant 0x5F0F3CF5.
 		/// </summary>
-		public int MagicNumber
-		{
-			get
-			{
-				return (int)rec.Magic_Number;
-			}
-		}
+		public int MagicNumber => (int)Rec.Magic_Number;
 
 		/// <summary>
 		/// Gets font flags for miscellaneous information.
 		/// </summary>
-		[CLSCompliant(false)]
-		public HeaderFLags Flags
-		{
-			get
-			{
-				return (HeaderFLags)rec.Flags;
-			}
-		}
+		public HeaderFLags Flags =>(HeaderFLags)Rec.Flags;
 
 		/// <summary>
 		/// Gets the designed number of units per em, also referred to as FUnits.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort UnitsPerEM
-		{
-			get
-			{
-				return rec.Units_Per_EM;
-			}
-		}
+		public ushort UnitsPerEM => Rec.Units_Per_EM;
 
 		/// <summary>
 		/// Gets the date and time created.
 		/// </summary>
-		public int[] Created
-		{
-			get
-			{
-				return new[] { (int)rec.created1, (int)rec.created2 };
-			}
-		}
+		public ReadOnlySpan<int> Created => new[] { (int)Rec.created1, (int)Rec.created2 };
 
 		/// <summary>
 		/// Gets the last time modified.
 		/// </summary>
-		public int[] Modified
-		{
-			get
-			{
-				return new[] { (int)rec.modified1, (int)rec.modified2 };
-			}
-		}
+		public ReadOnlySpan<int> Modified => new[] { (int)Rec.modified1, (int)Rec.modified2 };
 
 		/// <summary>
 		/// Get the minimum X value of all glyph bounding boxes.
 		/// </summary>
-		public short MinimumX
-		{
-			get
-			{
-				return rec.xMin;
-			}
-		}
+		public short MinimumX => Rec.xMin;
 
 		/// <summary>
 		/// Get the minimum Y value of all glyph bounding boxes.
 		/// </summary>
-		public short MinimumY
-		{
-			get
-			{
-				return rec.yMin;
-			}
-		}
+		public short MinimumY => Rec.yMin;
 
 		/// <summary>
 		/// Get the maximum X value of all glyph bounding boxes.
 		/// </summary>
-		public short MaximumX
-		{
-			get
-			{
-				return rec.xMax;
-			}
-		}
+		public short MaximumX => Rec.xMax;
 
 		/// <summary>
 		/// Get the maximum Y value of all glyph bounding boxes.
 		/// </summary>
-		public short MaximumY
-		{
-			get
-			{
-				return rec.yMax;
-			}
-		}
+		public short MaximumY => Rec.yMax;
 
 		/// <summary>
 		/// Gets the basic style of the font (bold, etc.).
 		/// </summary>
-		[CLSCompliant(false)]
-		public HeaderMacStyles MacStyle
-		{
-			get
-			{
-				return (HeaderMacStyles)rec.Mac_Style;
-			}
-		}
+		public HeaderMacStyles MacStyle => (HeaderMacStyles)Rec.Mac_Style;
 
 		/// <summary>
 		/// Gets the smallest readable size, in pixels.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort LowestRecPpem
-		{
-			get
-			{
-				return rec.Lowest_Rec_PPEM;
-			}
-		}
+		public ushort LowestRecPpem => Rec.Lowest_Rec_PPEM;
 
 		/// <summary>
 		/// Gets the direction of glyhps (deprecated).
 		/// </summary>
-		public short FontDirection
-		{
-			get
-			{
-				return rec.Font_Direction;
-			}
-		}
+		public short FontDirection => Rec.Font_Direction;
 
 		/// <summary>
 		/// Gets the length of index: 0 for short, 1 for long.
 		/// </summary>
-		public short IndexToLocFormat
-		{
-			get
-			{
-				return rec.Index_To_Loc_Format;
-			}
-		}
+		public short IndexToLocFormat => Rec.Index_To_Loc_Format;
 
 		/// <summary>
 		/// Gets the format of glyph data.
 		/// </summary>
-		public short GlyphDataFormat
-		{
-			get
-			{
-				return rec.Glyph_Data_Format;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<HeaderRec>(reference);
-			}
-		}
+		public short GlyphDataFormat => Rec.Glyph_Data_Format;
 
 		#endregion
 	}

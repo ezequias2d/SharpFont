@@ -44,101 +44,47 @@ namespace SharpFont
 	/// contained in the bitmap strike itself. They are computed from the
 	/// global font parameters.
 	/// </para></remarks>
-	public sealed class BitmapSize
+	public sealed class BitmapSize : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private BitmapSizeRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal BitmapSize(IntPtr reference)
+		internal BitmapSize(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
-		}
-
-		internal BitmapSize(BitmapSizeRec bmpSizeInt)
-		{
-			this.rec = bmpSizeInt;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref BitmapSizeRec Rec => ref PInvokeHelper.PtrToRefStructure<BitmapSizeRec>(Reference);
+
 		/// <summary>
 		/// Gets the vertical distance, in pixels, between two consecutive
 		/// baselines. It is always positive.
 		/// </summary>
-		public short Height
-		{
-			get
-			{
-				return rec.height;
-			}
-		}
+		public short Height => Rec.height;
 
 		/// <summary>
 		/// Gets the average width, in pixels, of all glyphs in the strike.
 		/// </summary>
-		public short Width
-		{
-			get
-			{
-				return rec.width;
-			}
-		}
+		public short Width => Rec.width;
 
 		/// <summary>
 		/// Gets the nominal size of the strike in 26.6 fractional points. This
 		/// field is not very useful.
 		/// </summary>
-		public Fixed26Dot6 Size
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.size);
-			}
-		}
+		public Fixed26Dot6 Size => Rec.Size;
 
 		/// <summary>
 		/// Gets the horizontal ppem (nominal width) in 26.6 fractional pixels.
 		/// </summary>
-		public Fixed26Dot6 NominalWidth
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.x_ppem);
-			}
-		}
+		public Fixed26Dot6 NominalWidth => Rec.NominalWidth;
 
 		/// <summary>
 		/// Gets the vertical ppem (nominal height) in 26.6 fractional pixels.
 		/// </summary>
-		public Fixed26Dot6 NominalHeight
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.y_ppem);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<BitmapSizeRec>(reference);
-			}
-		}
+		public Fixed26Dot6 NominalHeight => Rec.NominalHeight;
 
 		#endregion
 	}

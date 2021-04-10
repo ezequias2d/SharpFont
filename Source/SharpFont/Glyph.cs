@@ -32,114 +32,37 @@ namespace SharpFont
 	/// <summary>
 	/// The root glyph structure contains a given glyph image plus its advance width in 16.16 fixed float format.
 	/// </summary>
-	public sealed class Glyph : IDisposable
+	public sealed class Glyph : DisposableNativeObject
 	{
-		#region Fields
-
-		private bool disposed;
-
-		private IntPtr reference;
-		private GlyphRec rec;
-
-		private Library parentLibrary;
-
-		#endregion
 
 		#region Constructors
 
-		internal Glyph(IntPtr reference, Library parentLibrary)
+		internal Glyph(IntPtr reference, Library parentLibrary) : base(reference)
 		{
-			Reference = reference;
-
-			this.parentLibrary = parentLibrary;
+			Library = parentLibrary;
 			parentLibrary.AddChildGlyph(this);
-		}
-
-		/// <summary>
-		/// Finalizes an instance of the Glyph class.
-		/// </summary>
-		~Glyph()
-		{
-			Dispose(false);
 		}
 
 		#endregion
 
 		#region Properties
 
-		/// <summary>
-		/// Gets a value indicating whether the object has been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get
-			{
-				return disposed;
-			}
-		}
+		private ref GlyphRec Rec => ref PInvokeHelper.PtrToRefStructure<GlyphRec>(Reference);
 
 		/// <summary>
 		/// Gets a handle to the FreeType library object.
 		/// </summary>
-		public Library Library
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-				return parentLibrary;
-			}
-		}
+		public Library Library { get; }
 
 		/// <summary>
 		/// Gets the format of the glyph's image.
 		/// </summary>
-		[CLSCompliant(false)]
-		public GlyphFormat Format
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Format", "Cannot access a disposed object.");
-
-				return rec.format;
-			}
-		}
+		public GlyphFormat Format => Rec.format;
 
 		/// <summary>
 		/// Gets a 16.16 vector that gives the glyph's advance width.
 		/// </summary>
-		public FTVector Advance
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Advance", "Cannot access a disposed object.");
-
-				return rec.advance;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<GlyphRec>(reference);
-			}
-		}
+		public FTVector Advance => Rec.advance;
 
 		#endregion
 
@@ -153,13 +76,10 @@ namespace SharpFont
 		/// <exception cref="InvalidCastException">
 		/// If the <see cref="Glyph"/>'s format is not <see cref="GlyphFormat.Bitmap"/>.
 		/// </exception>
-		public static explicit operator BitmapGlyph(Glyph g)
-		{
-			if (g.Format == GlyphFormat.Bitmap)
-				return new BitmapGlyph(g);
-			else
+		public static explicit operator BitmapGlyph(Glyph g) =>
+			g.Format == GlyphFormat.Bitmap ?
+				new BitmapGlyph(g) :
 				throw new InvalidCastException("The glyph's format is not GlyphFormat.Bitmap.");
-		}
 
 		/// <summary>
 		/// Downcasts a <see cref="Glyph"/> to a <see cref="OutlineGlyph"/>
@@ -169,35 +89,14 @@ namespace SharpFont
 		/// <exception cref="InvalidCastException">
 		/// If the <see cref="Glyph"/>'s format is not <see cref="GlyphFormat.Outline"/>.
 		/// </exception>
-		public static explicit operator OutlineGlyph(Glyph g)
-		{
-			if (g.Format == GlyphFormat.Outline)
-				return new OutlineGlyph(g);
-			else
-				throw new InvalidCastException("The glyph's format is not GlyphFormat.Outline.");
-		}
+		public static explicit operator OutlineGlyph(Glyph g) =>
+			g.Format == GlyphFormat.Outline ?
+			new OutlineGlyph(g) :
+			throw new InvalidCastException("The glyph's format is not GlyphFormat.Outline.");
 
 		#endregion
 
 		#region Methods
-
-		/// <summary>
-		/// CLS-compliant equivalent of an explicit cast to <see cref="BitmapGlyph"/>.
-		/// </summary>
-		/// <returns>A <see cref="BitmapGlyph"/>.</returns>
-		public BitmapGlyph ToBitmapGlyph()
-		{
-			return (BitmapGlyph)this;
-		}
-
-		/// <summary>
-		/// CLS-compliant equivalent of an explicit cast to <see cref="OutlineGlyph"/>.
-		/// </summary>
-		/// <returns>A <see cref="OutlineGlyph"/>.</returns>
-		public OutlineGlyph ToOutlineGlyph()
-		{
-			return (OutlineGlyph)this;
-		}
 
 		/// <summary>
 		/// A function used to copy a glyph image. Note that the created <see cref="Glyph"/> object must be released
@@ -206,12 +105,7 @@ namespace SharpFont
 		/// <returns>A handle to the target glyph object. 0 in case of error.</returns>
 		public Glyph Copy()
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
-
-			IntPtr glyphRef;
-
-			Error err = FT.FT_Glyph_Copy(Reference, out glyphRef);
+			Error err = FT.FT_Glyph_Copy(Reference, out var glyphRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -228,9 +122,6 @@ namespace SharpFont
 		/// </param>
 		public void Transform(FTMatrix matrix, FTVector delta)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Glyph_Transform(Reference, ref matrix, ref delta);
 
 			if (err != Error.Ok)
@@ -284,15 +175,9 @@ namespace SharpFont
 		/// <returns>
 		/// The glyph coordinate bounding box. Coordinates are expressed in 1/64th of pixels if it is grid-fitted.
 		/// </returns>
-		[CLSCompliant(false)]
 		public BBox GetCBox(GlyphBBoxMode mode)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
-
-			BBox box;
-			FT.FT_Glyph_Get_CBox(Reference, mode, out box);
-
+			FT.FT_Glyph_Get_CBox(Reference, mode, out var box);
 			return box;
 		}
 
@@ -318,18 +203,15 @@ namespace SharpFont
 		/// A boolean that indicates that the original glyph image should be destroyed by this function. It is never
 		/// destroyed in case of error.
 		/// </param>
-		public void ToBitmap(RenderMode renderMode, FTVector26Dot6 origin, bool destroy)
+		public Glyph ToBitmap(RenderMode renderMode, FTVector26Dot6 origin, bool destroy)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
-
 			IntPtr glyphRef = Reference;
 			Error err = FT.FT_Glyph_To_Bitmap(ref glyphRef, renderMode, ref origin, destroy);
 
-			Reference = glyphRef;
-
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
+
+			return new Glyph(glyphRef, Library);
 		}
 
 		#region Glyph Stroker
@@ -343,32 +225,19 @@ namespace SharpFont
 		/// <param name="stroker">A stroker handle.</param>
 		/// <param name="destroy">A Boolean. If 1, the source glyph object is destroyed on success.</param>
 		/// <returns>New glyph handle.</returns>
-		public Glyph Stroke(Stroker stroker, bool destroy)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
-
+		public Glyph Stroke(Stroker stroker)
+		{ 
 			if (stroker == null)
 				throw new ArgumentNullException("stroker");
 
 			IntPtr sourceRef = Reference;
-			Error err = FT.FT_Glyph_Stroke(ref sourceRef, stroker.Reference, destroy);
-
-			if (destroy && err == Error.Ok)
-			{
-				//if FT_Glyph_Stroke destroys the glyph, keep the C# side synchronized.
-				disposed = true;
-				reference = IntPtr.Zero;
-			}
-
+			Error err = FT.FT_Glyph_Stroke(ref sourceRef, stroker.Reference, false);
+			
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
-
+			
 			//check if the pointer didn't change.
-			if (sourceRef == reference)
-				return this;
-			else
-				return new Glyph(sourceRef, parentLibrary);
+			return sourceRef == Reference ? this : new Glyph(sourceRef, Library);
 		}
 
 		/// <summary>
@@ -382,61 +251,34 @@ namespace SharpFont
 		/// <param name="inside">A Boolean. If 1, return the inside border, otherwise the outside border.</param>
 		/// <param name="destroy">A Boolean. If 1, the source glyph object is destroyed on success.</param>
 		/// <returns>New glyph handle.</returns>
-		public Glyph StrokeBorder(Stroker stroker, bool inside, bool destroy)
+		public Glyph StrokeBorder(Stroker stroker, bool inside)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
-
 			if (stroker == null)
 				throw new ArgumentNullException("stroker");
 
 			IntPtr sourceRef = Reference;
-			Error err = FT.FT_Glyph_StrokeBorder(ref sourceRef, stroker.Reference, inside, destroy);
-
-			if (destroy && err == Error.Ok)
-			{
-				//if FT_Glyph_Stroke destroys the glyph, keep the C# side synchronized.
-				disposed = true;
-				reference = IntPtr.Zero;
-			}
+			Error err = FT.FT_Glyph_StrokeBorder(ref sourceRef, stroker.Reference, inside, false);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
 
+
 			//check if the pointer didn't change.
-			if (sourceRef == reference)
-				return this;
-			else
-				return new Glyph(sourceRef, parentLibrary );
+			return sourceRef == Reference ? this : new Glyph(sourceRef, Library);
 		}
 
 		#endregion
 
-		/// <summary>
-		/// Disposes the Glyph.
-		/// </summary>
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+			FT.FT_Done_Glyph(Reference);
 
-		private void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				disposed = true;
+			// removes itself from the parent Library, with a check to prevent this from happening when Library is
+			// being disposed (Library disposes all it's children with a foreach loop, this causes an
+			// InvalidOperationException for modifying a collection during enumeration)
+			if (!Library.IsDisposed)
+				Library.RemoveChildGlyph(this);
 
-				FT.FT_Done_Glyph(reference);
-
-				// removes itself from the parent Library, with a check to prevent this from happening when Library is
-				// being disposed (Library disposes all it's children with a foreach loop, this causes an
-				// InvalidOperationException for modifying a collection during enumeration)
-				if (!parentLibrary.IsDisposed)
-					parentLibrary.RemoveChildGlyph(this);
-
-				reference = IntPtr.Zero;
-			}
 		}
 
 		#endregion

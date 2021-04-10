@@ -32,8 +32,8 @@ namespace SharpFont.Internal
 	internal struct SizeRec
 	{
 		internal IntPtr face;
-		internal GenericRec generic;
-		internal SizeMetricsRec metrics;
+		internal Generic generic;
+		internal SizeMetrics metrics;
 		private IntPtr @internal;
 	}
 }

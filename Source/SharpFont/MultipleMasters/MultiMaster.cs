@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.MultipleMasters.Internal;
 
 namespace SharpFont.MultipleMasters
@@ -34,78 +34,43 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// This structure can't be used for GX var fonts.
 	/// </para></summary>
-	public class MultiMaster
+	public class MultiMaster : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private MultiMasterRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal MultiMaster(IntPtr reference)
+		internal MultiMaster(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref MultiMasterRec Rec => ref PInvokeHelper.PtrToRefStructure<MultiMasterRec>(Reference);
+
 		/// <summary>
 		/// Gets the number of axes. Cannot exceed 4.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint AxisCount
-		{
-			get
-			{
-				return rec.num_axis;
-			}
-		}
+		public uint AxisCount => Rec.num_axis;
 
 		/// <summary>
 		/// Gets the number of designs; should be normally 2^num_axis even though the Type 1 specification strangely
 		/// allows for intermediate designs to be present. This number cannot exceed 16.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint DesignsCount
-		{
-			get
-			{
-				return rec.num_designs;
-			}
-		}
+		public uint DesignsCount => Rec.num_designs;
 
 		/// <summary>
 		/// Gets a table of axis descriptors.
 		/// </summary>
-		public MMAxis[] Axis
+		public ReadOnlySpan<MMAxis> Axis
 		{
 			get
 			{
-				MMAxis[] axis = new MMAxis[rec.num_axis];
-
-				for (int i = 0; i < rec.num_axis; i++)
-					axis[i] = new MMAxis(rec.axis[i]);
-
-				return axis;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MultiMasterRec>(reference);
+				unsafe
+				{
+					var ptr = (MultiMasterRec*)Reference;
+					return new ReadOnlySpan<MMAxis>(&ptr->axis1, 4);
+				}
 			}
 		}
 

@@ -34,11 +34,6 @@ namespace SharpFont
 	/// </summary>
 	public class ListNode: NativeObject
 	{
-		#region Fields
-
-		private ListNodeRec rec;
-
-		#endregion
 
 		#region Constructors
 
@@ -50,6 +45,8 @@ namespace SharpFont
 
 		#region Properties
 
+		private ref ListNodeRec Rec => ref PInvokeHelper.PtrToRefStructure<ListNodeRec>(Reference);
+
 		/// <summary>
 		/// Gets the previous element in the list. NULL if first.
 		/// </summary>
@@ -57,10 +54,10 @@ namespace SharpFont
 		{
 			get
 			{
-				if (rec.prev == IntPtr.Zero)
+				if (Rec.prev == IntPtr.Zero)
 					return null;
 
-				return new ListNode(rec.prev);
+				return new ListNode(Rec.prev);
 			}
 		}
 
@@ -71,37 +68,17 @@ namespace SharpFont
 		{
 			get
 			{
-				if (rec.next == IntPtr.Zero)
+				if (Rec.next == IntPtr.Zero)
 					return null;
 
-				return new ListNode(rec.next);
+				return new ListNode(Rec.next);
 			}
 		}
 
 		/// <summary>
 		/// Gets a typeless pointer to the listed object.
 		/// </summary>
-		public IntPtr Data
-		{
-			get
-			{
-				return rec.data;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<ListNodeRec>(value);
-			}
-		}
+		public IntPtr Data => Rec.data;
 
 		#endregion
 	}

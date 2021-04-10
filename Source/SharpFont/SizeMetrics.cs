@@ -45,21 +45,20 @@ namespace SharpFont
 	/// </para><para>
 	/// The <see cref="SizeMetrics"/> structure is valid for bitmap fonts also.
 	/// </para></remarks>
-	public sealed class SizeMetrics
+	
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SizeMetrics
 	{
 		#region Fields
+		private readonly ushort x_ppem;
+		private readonly ushort y_ppem;
 
-		private SizeMetricsRec rec;
-
-		#endregion
-
-		#region Constructors
-
-		internal SizeMetrics(SizeMetricsRec metricsInternal)
-		{
-			rec = metricsInternal;
-		}
-
+		private readonly IntPtr x_scale;
+		private readonly IntPtr y_scale;
+		private readonly IntPtr ascender;
+		private readonly IntPtr descender;
+		private readonly IntPtr height;
+		private readonly IntPtr max_advance;
 		#endregion
 
 		#region Properties
@@ -68,99 +67,49 @@ namespace SharpFont
 		/// Gets the width of the scaled EM square in pixels, hence the term ‘ppem’ (pixels per EM). It is also referred to
 		/// as ‘nominal width’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort NominalWidth
-		{
-			get
-			{
-				return rec.x_ppem;
-			}
-		}
+		public ushort NominalWidth => x_ppem;
 
 		/// <summary>
 		/// Gets the height of the scaled EM square in pixels, hence the term ‘ppem’ (pixels per EM). It is also referred to
 		/// as ‘nominal height’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort NominalHeight
-		{
-			get
-			{
-				return rec.y_ppem;
-			}
-		}
+		public ushort NominalHeight => y_ppem;
 
 		/// <summary>
 		/// Gets a 16.16 fractional scaling value used to convert horizontal metrics from font units to 26.6 fractional
 		/// pixels. Only relevant for scalable font formats.
 		/// </summary>
-		public Fixed16Dot16 ScaleX
-		{
-			get
-			{
-				return Fixed16Dot16.FromRawValue((int)rec.x_scale);
-			}
-		}
+		public Fixed16Dot16 ScaleX => Fixed16Dot16.FromRawValue((int)x_scale);
 
 		/// <summary>
 		/// Gets a 16.16 fractional scaling value used to convert vertical metrics from font units to 26.6 fractional
 		/// pixels. Only relevant for scalable font formats.
 		/// </summary>
-		public Fixed16Dot16 ScaleY
-		{
-			get
-			{
-				return Fixed16Dot16.FromRawValue((int)rec.y_scale);
-			}
-		}
+		public Fixed16Dot16 ScaleY => Fixed16Dot16.FromRawValue((int)y_scale);
 
 		/// <summary>
 		/// Gets the ascender in 26.6 fractional pixels.
 		/// </summary>
 		/// <see cref="Face"/>
-		public Fixed26Dot6 Ascender
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.ascender);
-			}
-		}
+		public Fixed26Dot6 Ascender => Fixed26Dot6.FromRawValue((int)ascender);
 
 		/// <summary>
 		/// Gets the descender in 26.6 fractional pixels.
 		/// </summary>
 		/// <see cref="Face"/>
-		public Fixed26Dot6 Descender
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.descender);
-			}
-		}
+		public Fixed26Dot6 Descender => Fixed26Dot6.FromRawValue((int)descender);
 
 		/// <summary>
 		/// Gets the height in 26.6 fractional pixels.
 		/// </summary>
 		/// <see cref="Face"/>
-		public Fixed26Dot6 Height
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.height);
-			}
-		}
+		public Fixed26Dot6 Height => Fixed26Dot6.FromRawValue((int)height);
 
 		/// <summary>
 		/// Gets the maximal advance width in 26.6 fractional pixels.
 		/// </summary>
 		/// <see cref="Face"/>
-		public Fixed26Dot6 MaxAdvance
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.max_advance);
-			}
-		}
+		public Fixed26Dot6 MaxAdvance => Fixed26Dot6.FromRawValue((int)max_advance);
 
 		#endregion
 	}

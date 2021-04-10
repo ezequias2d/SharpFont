@@ -33,15 +33,22 @@ namespace SharpFont.Internal
 		internal uint module_flags;
 		internal IntPtr module_size;
 
-		[MarshalAs(UnmanagedType.LPStr)]
-		internal string module_name;
+		internal IntPtr module_name;
 		internal IntPtr module_version;
 		internal IntPtr module_requires;
 
 		internal IntPtr module_interface;
 
-		internal ModuleConstructor module_init;
-		internal ModuleDestructor module_done;
-		internal ModuleRequester get_interface;
+		internal IntPtr module_init;
+		internal IntPtr module_done;
+		internal IntPtr get_interface;
+
+		public string ModuleName => Marshal.PtrToStringAnsi(module_name);
+		public Fixed16Dot16 Version => Fixed16Dot16.FromRawValue((int)module_version);
+		public Fixed16Dot16 Requires => Fixed16Dot16.FromRawValue((int)module_requires);
+
+		public ModuleConstructor ModuleInit => Marshal.GetDelegateForFunctionPointer<ModuleConstructor>(module_init);
+		public ModuleDestructor ModuleDone => Marshal.GetDelegateForFunctionPointer<ModuleDestructor>(module_done);
+		public ModuleRequester GetInterface => Marshal.GetDelegateForFunctionPointer<ModuleRequester>(get_interface);
 	}
 }

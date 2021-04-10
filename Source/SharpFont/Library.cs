@@ -23,6 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -41,14 +42,11 @@ namespace SharpFont
 	/// </para><para>
 	/// For multi-threading applications each thread should have its own <see cref="Library"/> object.
 	/// </para></summary>
-	public sealed class Library : IDisposable
+	public sealed class Library : DisposableNativeObject
 	{
 		#region Fields
 
-		private IntPtr reference;
-
 		private bool customMemory;
-		private bool disposed;
 
 		private List<Face> childFaces;
 		private List<Glyph> childGlyphs;
@@ -70,15 +68,8 @@ namespace SharpFont
 		/// versa. See the SharpFont.Examples project for how to handle this situation.
 		/// </remarks>
 		public Library()
-			: this(false)
+			: this(NewLibraryRef())
 		{
-			IntPtr libraryRef;
-			Error err = FT.FT_Init_FreeType(out libraryRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			Reference = libraryRef;
 		}
 
 		/// <summary>
@@ -86,19 +77,12 @@ namespace SharpFont
 		/// </summary>
 		/// <param name="memory">A custom FreeType memory manager.</param>
 		public Library(Memory memory)
-			: this(false)
+			: this(NewLibraryRef(memory))
 		{
-			IntPtr libraryRef;
-			Error err = FT.FT_New_Library(memory.Reference, out libraryRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			Reference = libraryRef;
 			customMemory = true;
 		}
 
-		private Library(bool duplicate)
+		private Library(IntPtr reference) : base(reference)
 		{
 			childFaces = new List<Face>();
 			childGlyphs = new List<Glyph>();
@@ -107,28 +91,25 @@ namespace SharpFont
 			childManagers = new List<Manager>();
 		}
 
-		/// <summary>
-		/// Finalizes an instance of the <see cref="Library"/> class.
-		/// </summary>
-		~Library()
+		private static IntPtr NewLibraryRef()
 		{
-			Dispose(false);
+			Error err = FT.FT_Init_FreeType(out IntPtr libraryRef);
+			if(err == Error.Ok)
+				return libraryRef;
+			throw new FreeTypeException(err);
+		}
+
+		private static IntPtr NewLibraryRef(Memory memory)
+		{
+			Error err = FT.FT_New_Library(memory.Reference, out IntPtr libraryRef);
+			if (err == Error.Ok)
+				return libraryRef;
+			throw new FreeTypeException(err);
 		}
 
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// Gets a value indicating whether the object has been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get
-			{
-				return disposed;
-			}
-		}
 
 		/// <summary>
 		/// Gets the version of the FreeType library being used.
@@ -137,231 +118,14 @@ namespace SharpFont
 		{
 			get
 			{
-				if (disposed)
-					throw new ObjectDisposedException("Version", "Cannot access a disposed object.");
-
-				int major, minor, patch;
-				FT.FT_Library_Version(Reference, out major, out minor, out patch);
+				FT.FT_Library_Version(Reference, out int major, out int minor, out int patch);
 				return new Version(major, minor, patch);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				reference = value;
 			}
 		}
 
 		#endregion
 
 		#region Methods
-
-		#region Base Interface
-
-		/// <summary>
-		/// This function calls <see cref="OpenFace"/> to open a font by its pathname.
-		/// </summary>
-		/// <param name="path">A path to the font file.</param>
-		/// <param name="faceIndex">The index of the face within the font. The first face has index 0.</param>
-		/// <returns>
-		/// A handle to a new face object. If ‘faceIndex’ is greater than or equal to zero, it must be non-NULL.
-		/// </returns>
-		/// <see cref="OpenFace"/>
-		public Face NewFace(string path, int faceIndex)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			return new Face(this, path, faceIndex);
-		}
-
-		/// <summary>
-		/// This function calls <see cref="OpenFace"/> to open a font which has been loaded into memory.
-		/// </summary>
-		/// <remarks>
-		/// You must not deallocate the memory before calling <see cref="Face.Dispose()"/>.
-		/// </remarks>
-		/// <param name="file">A pointer to the beginning of the font data.</param>
-		/// <param name="faceIndex">The index of the face within the font. The first face has index 0.</param>
-		/// <returns>
-		/// A handle to a new face object. If ‘faceIndex’ is greater than or equal to zero, it must be non-NULL.
-		/// </returns>
-		/// <see cref="OpenFace"/>
-		public Face NewMemoryFace(byte[] file, int faceIndex)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			return new Face(this, file, faceIndex);
-		}
-
-		/// <summary>
-		/// This function calls <see cref="OpenFace"/> to open a font which has been loaded into memory.
-		/// </summary>
-		/// <param name="bufferPtr">A pointer to the beginning of the font data.</param>
-		/// <param name="length">Length of the buffer</param>
-		/// <param name="faceIndex">The index of the face within the font. The first face has index 0.</param>
-		/// <returns>
-		/// A handle to a new face object. If ‘faceIndex’ is greater than or equal to zero, it must be non-NULL.
-		/// </returns>
-		public Face NewMemoryFace(IntPtr bufferPtr, int length, int faceIndex)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			return new Face(this, bufferPtr, length, faceIndex);
-		}
-
-		/// <summary>
-		/// Create a <see cref="Face"/> object from a given resource described by <see cref="OpenArgs"/>.
-		/// </summary>
-		/// <remarks><para>
-		/// Unlike FreeType 1.x, this function automatically creates a glyph slot for the face object which can be
-		/// accessed directly through <see cref="Face.Glyph"/>.
-		/// </para><para>
-		/// OpenFace can be used to quickly check whether the font format of a given font resource is supported by
-		/// FreeType. If the ‘faceIndex’ field is negative, the function's return value is 0 if the font format is
-		/// recognized, or non-zero otherwise; the function returns a more or less empty face handle in ‘*aface’ (if
-		/// ‘aface’ isn't NULL). The only useful field in this special case is <see cref="Face.FaceCount"/> which gives
-		/// the number of faces within the font file. After examination, the returned <see cref="Face"/> structure
-		/// should be deallocated with a call to <see cref="Face.Dispose()"/>.
-		/// </para><para>
-		/// Each new face object created with this function also owns a default <see cref="FTSize"/> object, accessible
-		/// as <see cref="Face.Size"/>.
-		/// </para><para>
-		/// See the discussion of reference counters in the description of FT_Reference_Face.
-		/// </para></remarks>
-		/// <param name="args">
-		/// A pointer to an <see cref="OpenArgs"/> structure which must be filled by the caller.
-		/// </param>
-		/// <param name="faceIndex">The index of the face within the font. The first face has index 0.</param>
-		/// <returns>
-		/// A handle to a new face object. If ‘faceIndex’ is greater than or equal to zero, it must be non-NULL.
-		/// </returns>
-		public Face OpenFace(OpenArgs args, int faceIndex)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			IntPtr faceRef;
-
-			Error err = FT.FT_Open_Face(Reference, args.Reference, faceIndex, out faceRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			return new Face(faceRef, this);
-		}
-
-		#endregion
-
-		#region Mac Specific Interface
-
-		/// <summary>
-		/// Create a new face object from a FOND resource.
-		/// </summary>
-		/// <remarks>
-		/// This function can be used to create <see cref="Face"/> objects from fonts that are installed in the system
-		/// as follows.
-		/// <code>
-		/// fond = GetResource( 'FOND', fontName );
-		/// error = FT_New_Face_From_FOND( library, fond, 0, &amp;face );
-		/// </code>
-		/// </remarks>
-		/// <param name="fond">A FOND resource.</param>
-		/// <param name="faceIndex">Only supported for the -1 ‘sanity check’ special case.</param>
-		/// <returns>A handle to a new face object.</returns>
-		public Face NewFaceFromFond(IntPtr fond, int faceIndex)
-		{
-			if (!FT.IsMacOS)
-				throw new InvalidOperationException(
-					$"{nameof(NewFaceFromFond)} can only be called on macOS.");
-
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			IntPtr faceRef;
-
-			Error err = FT.FT_New_Face_From_FOND(Reference, fond, faceIndex, out faceRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			return new Face(faceRef, this);
-		}
-
-		/// <summary>
-		/// Create a new face object from a given resource and typeface index using an FSSpec to the font file.
-		/// </summary>
-		/// <remarks>
-		/// <see cref="NewFaceFromFSSpec"/> is identical to <see cref="NewFace"/> except it accepts an FSSpec instead
-		/// of a path.
-		/// </remarks>
-		/// <param name="spec">FSSpec to the font file.</param>
-		/// <param name="faceIndex">The index of the face within the resource. The first face has index 0.</param>
-		/// <returns>A handle to a new face object.</returns>
-		public Face NewFaceFromFSSpec(IntPtr spec, int faceIndex)
-		{
-			if (!FT.IsMacOS)
-				throw new InvalidOperationException(
-					$"{nameof(NewFaceFromFSSpec)} can only be called on macOS.");
-
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			IntPtr faceRef;
-
-			Error err = FT.FT_New_Face_From_FSSpec(Reference, spec, faceIndex, out faceRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			return new Face(faceRef, this);
-		}
-
-		/// <summary>
-		/// Create a new face object from a given resource and typeface index using an FSRef to the font file.
-		/// </summary>
-		/// <remarks>
-		/// <see cref="NewFaceFromFSRef"/> is identical to <see cref="NewFace"/> except it accepts an FSRef instead of
-		/// a path.
-		/// </remarks>
-		/// <param name="ref">FSRef to the font file.</param>
-		/// <param name="faceIndex">The index of the face within the resource. The first face has index 0.</param>
-		/// <returns>A handle to a new face object.</returns>
-		public Face NewFaceFromFSRef(IntPtr @ref, int faceIndex)
-		{
-			if (!FT.IsMacOS)
-				throw new InvalidOperationException(
-					$"{nameof(NewFaceFromFSRef)} can only be called on macOS.");
-
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			IntPtr faceRef;
-
-			Error err = FT.FT_New_Face_From_FSRef(Reference, @ref, faceIndex, out faceRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			return new Face(faceRef, this);
-		}
-
-		#endregion
 
 		#region Module Management
 
@@ -375,9 +139,6 @@ namespace SharpFont
 		/// <param name="clazz">A pointer to class descriptor for the module.</param>
 		public void AddModule(ModuleClass clazz)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Add_Module(Reference, clazz.Reference);
 
 			if (err != Error.Ok)
@@ -393,13 +154,7 @@ namespace SharpFont
 		/// </remarks>
 		/// <param name="moduleName">The module's name (as an ASCII string).</param>
 		/// <returns>A module handle. 0 if none was found.</returns>
-		public Module GetModule(string moduleName)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			return new Module(FT.FT_Get_Module(Reference, moduleName));
-		}
+		public Module GetModule(string moduleName) => new Module(FT.FT_Get_Module(Reference, moduleName));
 
 		/// <summary>
 		/// Remove a given module from a library instance.
@@ -410,9 +165,6 @@ namespace SharpFont
 		/// <param name="module">A handle to a module object.</param>
 		public void RemoveModule(Module module)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			if (module == null)
 				throw new ArgumentNullException("module");
 
@@ -435,9 +187,6 @@ namespace SharpFont
 		/// documentation.</param>
 		public void PropertySet(string moduleName, string propertyName, IntPtr value)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Property_Set(Reference, moduleName, propertyName, value);
 
 			if (err != Error.Ok)
@@ -477,10 +226,7 @@ namespace SharpFont
 		/// The exact definition of ‘value’ is dependent on the property; see the ‘Synopsis’ subsection of the module's
 		/// documentation.</param>
 		public void PropertySet<T>(string moduleName, string propertyName, T value)
-			where T : struct
-		{
-			PropertySet(moduleName, propertyName, ref value);
-		}
+			where T : struct => PropertySet(moduleName, propertyName, ref value);
 
 		/// <summary>
 		/// Set a property for a given module.
@@ -527,9 +273,6 @@ namespace SharpFont
 		/// documentation.</param>
 		public void PropertyGet(string moduleName, string propertyName, IntPtr value)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Property_Get(Reference, moduleName, propertyName, value);
 
 			if (err != Error.Ok)
@@ -545,13 +288,13 @@ namespace SharpFont
 		/// module's documentation.</param>
 		/// <param name="value">The value read from the module.</param>
 		public void PropertyGet<T>(string moduleName, string propertyName, out T value)
-			where T : struct
+			where T : unmanaged
 		{
-			value = default(T);
+			value = default;
 
 			GCHandle gch = GCHandle.Alloc(value, GCHandleType.Pinned);
 			PropertyGet(moduleName, propertyName, gch.AddrOfPinnedObject());
-			value = PInvokeHelper.PtrToStructure<T>(gch.AddrOfPinnedObject());
+			value = PInvokeHelper.PtrToRefStructure<T>(gch.AddrOfPinnedObject());
 			gch.Free();
 		}
 
@@ -590,9 +333,6 @@ namespace SharpFont
 		/// <returns>The value read from the module.</returns>
 		public GlyphToScriptMapProperty PropertyGetGlyphToScriptMap(string moduleName, string propertyName)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			GlyphToScriptMapPropertyRec rec;
 			PropertyGet(moduleName, propertyName, out rec);
 
@@ -609,12 +349,7 @@ namespace SharpFont
 		/// <returns>The value read from the module.</returns>
 		public IncreaseXHeightProperty PropertyGetIncreaseXHeight(string moduleName, string propertyName)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			IncreaseXHeightPropertyRec rec;
-			PropertyGet(moduleName, propertyName, out rec);
-
+			PropertyGet<IncreaseXHeightPropertyRec>(moduleName, propertyName, out var rec);
 			Face face = childFaces.Find(f => f.Reference == rec.face);
 			return new IncreaseXHeightProperty(rec, face);
 		}
@@ -631,27 +366,16 @@ namespace SharpFont
 		/// </para></remarks>
 		/// <param name="hookIndex">The index of the debug hook. You should use the values defined in ‘ftobjs.h’, e.g.,
 		/// ‘FT_DEBUG_HOOK_TRUETYPE’.</param>
-		/// <param name="debugHook">The function used to debug the interpreter.</param>
-		[CLSCompliant(false)]
-		public void SetDebugHook(uint hookIndex, IntPtr debugHook)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
+		/// <param name="debugHook">The function used to debug the interpreter.</param>		
+		public void SetDebugHook(uint hookIndex, IntPtr debugHook) =>
 			FT.FT_Set_Debug_Hook(Reference, hookIndex, debugHook);
-		}
 
 		/// <summary>
 		/// Add the set of default drivers to a given library object. This is only useful when you create a library
 		/// object with <see cref="Library(Memory)"/> (usually to plug a custom memory manager).
 		/// </summary>
-		public void AddDefaultModules()
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
+		public void AddDefaultModules() =>
 			FT.FT_Add_Default_Modules(Reference);
-		}
 
 		/// <summary>
 		/// Retrieve the current renderer for a given glyph format.
@@ -665,14 +389,8 @@ namespace SharpFont
 		/// </para></remarks>
 		/// <param name="format">The glyph format.</param>
 		/// <returns>A renderer handle. 0 if none found.</returns>
-		[CLSCompliant(false)]
-		public Renderer GetRenderer(GlyphFormat format)
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			return new Renderer(FT.FT_Get_Renderer(Reference, format));
-		}
+		public Renderer GetRenderer(GlyphFormat format) =>
+			new Renderer(FT.FT_Get_Renderer(Reference, format));
 
 		/// <summary>
 		/// Set the current renderer to use, and set additional mode.
@@ -691,12 +409,8 @@ namespace SharpFont
 		/// <param name="renderer">A handle to the renderer object.</param>
 		/// <param name="numParams">The number of additional parameters.</param>
 		/// <param name="parameters">Additional parameters.</param>
-		[CLSCompliant(false)]
 		public unsafe void SetRenderer(Renderer renderer, uint numParams, Parameter[] parameters)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			if (renderer == null)
 				throw new ArgumentNullException("renderer");
 
@@ -754,9 +468,6 @@ namespace SharpFont
 		/// </para></param>
 		public void SetLcdFilter(LcdFilter filter)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			Error err = FT.FT_Library_SetLcdFilter(Reference, filter);
 
 			if (err != Error.Ok)
@@ -781,9 +492,6 @@ namespace SharpFont
 		/// </param>
 		public void SetLcdFilterWeights(byte[] weights)
 		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
 			if (weights == null)
 				throw new ArgumentNullException("weights");
 
@@ -802,106 +510,68 @@ namespace SharpFont
 		/// library instance supports.
 		/// </summary>
 		/// <returns>A value indicating which level is supported.</returns>
-		public EngineType GetTrueTypeEngineType()
-		{
-			if (disposed)
-				throw new ObjectDisposedException("Library", "Cannot access a disposed object.");
-
-			return FT.FT_Get_TrueType_Engine_Type(Reference);
-		}
+		public EngineType GetTrueTypeEngineType() => FT.FT_Get_TrueType_Engine_Type(Reference);
 
 		#endregion
 
-		/// <summary>
-		/// Disposes the Library.
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		internal void AddChildFace(Face child)
-		{
+		internal void AddChildFace(Face child) =>
 			childFaces.Add(child);
-		}
 
-		internal void RemoveChildFace(Face child)
-		{
+		internal void RemoveChildFace(Face child) =>
 			childFaces.Remove(child);
-		}
 
-		internal void AddChildGlyph(Glyph child)
-		{
+		internal void AddChildGlyph(Glyph child) =>
 			childGlyphs.Add(child);
-		}
 
-		internal void RemoveChildGlyph(Glyph child)
-		{
+		internal void RemoveChildGlyph(Glyph child) =>
 			childGlyphs.Remove(child);
-		}
 
-		internal void AddChildOutline(Outline child)
-		{
+		internal void AddChildOutline(Outline child) =>
 			childOutlines.Add(child);
-		}
 
-		internal void RemoveChildOutline(Outline child)
-		{
+		internal void RemoveChildOutline(Outline child) =>
 			childOutlines.Remove(child);
-		}
 
-		internal void AddChildStroker(Stroker child)
-		{
+		internal void AddChildStroker(Stroker child) =>
 			childStrokers.Add(child);
-		}
 
-		internal void RemoveChildStroker(Stroker child)
-		{
+		internal void RemoveChildStroker(Stroker child) =>
 			childStrokers.Remove(child);
-		}
 
-		internal void AddChildManager(Manager child)
-		{
+		internal void AddChildManager(Manager child) =>
 			childManagers.Add(child);
-		}
 
-		internal void RemoveChildManager(Manager child)
-		{
+		internal void RemoveChildManager(Manager child) =>
 			childManagers.Remove(child);
-		}
 
-		private void Dispose(bool disposing)
+		protected override void Dispose(bool disposing)
 		{
-			if (!disposed)
-			{
-				disposed = true;
+			//dipose all the children before disposing the library.
+			foreach (Face f in childFaces)
+				f.Dispose();
 
-				//dipose all the children before disposing the library.
-				foreach (Face f in childFaces)
-					f.Dispose();
+			foreach (Glyph g in childGlyphs)
+				g.Dispose();
 
-				foreach (Glyph g in childGlyphs)
-					g.Dispose();
+			foreach (Outline o in childOutlines)
+				o.Dispose();
 
-				foreach (Outline o in childOutlines)
-					o.Dispose();
+			foreach (Stroker s in childStrokers)
+				s.Dispose();
 
-				foreach (Stroker s in childStrokers)
-					s.Dispose();
+			foreach (Manager m in childManagers)
+				m.Dispose();
 
-				foreach (Manager m in childManagers)
-					m.Dispose();
+			childFaces.Clear();
+			childGlyphs.Clear();
+			childOutlines.Clear();
+			childStrokers.Clear();
+			childManagers.Clear();
 
-				childFaces.Clear();
-				childGlyphs.Clear();
-				childOutlines.Clear();
-				childStrokers.Clear();
-				childManagers.Clear();
+			Error err = customMemory ? FT.FT_Done_Library(Reference) : FT.FT_Done_FreeType(Reference);
 
-				Error err = customMemory ? FT.FT_Done_Library(reference) : FT.FT_Done_FreeType(reference);
-				reference = IntPtr.Zero;
-			}
+			if (err != Error.Ok)
+				throw new FreeTypeException(err);
 		}
 
 		#endregion

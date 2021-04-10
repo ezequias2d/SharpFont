@@ -89,6 +89,7 @@ namespace Examples
 
 		internal void SetFont(string filename)
 		{
+			FontFace?.Dispose();
 			FontFace = new Face(lib, filename);
 			SetSize(this.Size);
 		}

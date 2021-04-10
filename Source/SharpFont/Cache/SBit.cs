@@ -26,6 +26,7 @@ using System;
 using System.Runtime.InteropServices;
 
 using SharpFont.Cache.Internal;
+using SharpFont.Internal;
 
 namespace SharpFont.Cache
 {
@@ -34,151 +35,71 @@ namespace SharpFont.Cache
 	/// anti-aliased pixmaps) in a much more efficient way than the traditional glyph image cache implemented by
 	/// <see cref="ImageCache"/>.
 	/// </summary>
-	public class SBit
+	public class SBit : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private SBitRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal SBit(IntPtr reference)
+		internal SBit(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
+		private ref SBitRec Rec => ref PInvokeHelper.PtrToRefStructure<SBitRec>(Reference);
 
 		/// <summary>
 		/// Gets the bitmap width in pixels.
 		/// </summary>
-		public byte Width
-		{
-			get
-			{
-				return rec.width;
-			}
-		}
+		public byte Width => Rec.width;
 
 		/// <summary>
 		/// Gets the bitmap height in pixels.
 		/// </summary>
-		public byte Height
-		{
-			get
-			{
-				return rec.height;
-			}
-		}
+		public byte Height => Rec.height;
 
 		/// <summary>
 		/// Gets the horizontal distance from the pen position to the left bitmap border (a.k.a. ‘left side bearing’,
 		/// or ‘lsb’).
 		/// </summary>
-		public byte Left
-		{
-			get
-			{
-				return rec.left;
-			}
-		}
+		public byte Left => Rec.left;
 
 		/// <summary>
 		/// Gets the vertical distance from the pen position (on the baseline) to the upper bitmap border (a.k.a. ‘top
 		/// side bearing’). The distance is positive for upwards y coordinates.
 		/// </summary>
-		public byte Top
-		{
-			get
-			{
-				return rec.top;
-			}
-		}
+		public byte Top => Rec.top;
 
 		/// <summary>
 		/// Gets the format of the glyph bitmap (monochrome or gray).
 		/// </summary>
-		public byte Format
-		{
-			get
-			{
-				return rec.format;
-			}
-		}
+		public byte Format => Rec.format;
 
 		/// <summary>
 		/// Gets the maximum gray level value (in the range 1 to 255).
 		/// </summary>
-		public byte MaxGrays
-		{
-			get
-			{
-				return rec.max_grays;
-			}
-		}
+		public byte MaxGrays => Rec.max_grays;
 
 		/// <summary>
 		/// Gets the number of bytes per bitmap line. May be positive or negative.
 		/// </summary>
-		public short Pitch
-		{
-			get
-			{
-				return rec.pitch;
-			}
-		}
+		public short Pitch => Rec.pitch;
 
 		/// <summary>
 		/// Gets the horizontal advance width in pixels.
 		/// </summary>
-		public byte AdvanceX
-		{
-			get
-			{
-				return rec.xadvance;
-			}
-		}
+		public byte AdvanceX => Rec.xadvance;
 
 		/// <summary>
 		/// Gets the vertical advance height in pixels.
 		/// </summary>
-		public byte AdvanceY
-		{
-			get
-			{
-				return rec.yadvance;
-			}
-		}
+		public byte AdvanceY => Rec.yadvance;
 
 		/// <summary>
 		/// Gets a pointer to the bitmap pixels.
 		/// </summary>
-		public IntPtr Buffer
-		{
-			get
-			{
-				return rec.buffer;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<SBitRec>(reference);
-			}
-		}
+		public IntPtr Buffer => Rec.buffer;
 
 		#endregion
 	}

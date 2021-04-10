@@ -99,11 +99,6 @@ namespace SharpFont
 	/// </para></remarks>
 	public class RasterParams : NativeObject
 	{
-		#region Fields
-
-		private RasterParamsRec rec;
-
-		#endregion
 
 		#region Constructors
 
@@ -115,122 +110,56 @@ namespace SharpFont
 
 		#region Properties
 
+		private ref RasterParamsRec Rec => ref PInvokeHelper.PtrToRefStructure<RasterParamsRec>(Reference);
+
 		/// <summary>
 		/// Gets the target bitmap.
 		/// </summary>
-		public FTBitmap Target
-		{
-			get
-			{
-				return new FTBitmap(rec.target, null);
-			}
-		}
+		public FTBitmap Target => new FTBitmap(Rec.target, null);
 
 		/// <summary>
 		/// Gets a pointer to the source glyph image (e.g., an <see cref="Outline"/>).
 		/// </summary>
-		public IntPtr Source
-		{
-			get
-			{
-				return rec.source;
-			}
-		}
+		public IntPtr Source => Rec.source;
 
 		/// <summary>
 		/// Gets the rendering flags.
 		/// </summary>
-		public RasterFlags Flags
-		{
-			get
-			{
-				return rec.flags;
-			}
-		}
+		public RasterFlags Flags => Rec.flags;
 
 		/// <summary>
 		/// Gets the gray span drawing callback.
 		/// </summary>
-		public RasterSpanFunc GraySpans
-		{
-			get
-			{
-				return rec.gray_spans;
-			}
-		}
+		public RasterSpanFunc GraySpans => Rec.GraySpans;
 
 		/// <summary>
 		/// Gets the black span drawing callback. UNIMPLEMENTED!
 		/// </summary>
-        [Obsolete]
-		public RasterSpanFunc BlackSpans
-		{
-			get
-			{
-				return rec.black_spans;
-			}
-		}
+		[Obsolete]
+		public RasterSpanFunc BlackSpans => Rec.BlackSpans;
 
 		/// <summary>
 		/// Gets the bit test callback. UNIMPLEMENTED!
 		/// </summary>
         [Obsolete]
-		public RasterBitTestFunc BitTest
-		{
-			get
-			{
-				return rec.bit_test;
-			}
-		}
+		public RasterBitTestFunc BitTest => Rec.BitTest;
 
 		/// <summary>
 		/// Gets the bit set callback. UNIMPLEMENTED!
 		/// </summary>
         [Obsolete]
-		public RasterBitSetFunc BitSet
-		{
-			get
-			{
-				return rec.bit_set;
-			}
-		}
+		public RasterBitSetFunc BitSet => Rec.BitSet;
 
 		/// <summary>
 		/// Gets the user-supplied data that is passed to each drawing callback.
 		/// </summary>
-		public IntPtr User
-		{
-			get
-			{
-				return rec.user;
-			}
-		}
+		public IntPtr User => Rec.user;
 
 		/// <summary>
 		/// Gets an optional clipping box. It is only used in direct rendering mode. Note that coordinates here should
 		/// be expressed in integer pixels (and not in 26.6 fixed-point units).
 		/// </summary>
-		public BBox ClipBox
-		{
-			get
-			{
-				return rec.clip_box;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<RasterParamsRec>(value);
-			}
-		}
+		public BBox ClipBox => Rec.clip_box;
 
 		#endregion
 	}

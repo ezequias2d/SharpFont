@@ -41,7 +41,6 @@ namespace SharpFont
 	/// <param name="buffer">The address of the read buffer.</param>
 	/// <param name="count">The number of bytes to read from the stream.</param>
 	/// <returns>The number of bytes effectively read by the stream.</returns>
-	[CLSCompliant(false)]
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate uint StreamIOFunc(NativeReference<FTStream> stream, uint offset, IntPtr buffer, uint count);
 
@@ -57,11 +56,6 @@ namespace SharpFont
 	/// </summary>
 	public sealed class FTStream : NativeObject
 	{
-		#region Fields
-
-		private StreamRec rec;
-
-		#endregion
 
 		#region Constructors
 
@@ -73,136 +67,68 @@ namespace SharpFont
 
 		#region Properties
 
+		private ref StreamRec Rec => ref PInvokeHelper.PtrToRefStructure<StreamRec>(Reference);
+
 		/// <summary>
 		/// Gets base. For memory-based streams, this is the address of the first stream byte in memory. This field
 		/// should always be set to NULL for disk-based streams.
 		/// </summary>
-		public IntPtr Base
-		{
-			get
-			{
-				return rec.@base;
-			}
-		}
+		public IntPtr Base => Rec.@base;
 		
 		/// <summary>
 		/// Gets the stream size in bytes.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint Size
-		{
-			get
-			{
-				return (uint)rec.size;
-			}
-		}
+		public uint Size =>(uint)Rec.size;
 
 		/// <summary>
 		/// Gets the current position within the stream.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint Position
-		{
-			get
-			{
-				return (uint)rec.pos;
-			}
-		}
+		public uint Position => (uint)Rec.pos;
 
 		/// <summary>
 		/// Gets the descriptor. This field is a union that can hold an integer or a pointer. It is used by stream
 		/// implementations to store file descriptors or ‘FILE*’ pointers.
 		/// </summary>
-		public StreamDesc Descriptor
-		{
-			get
-			{
-				return new StreamDesc(PInvokeHelper.AbsoluteOffsetOf<StreamRec>(Reference, "descriptor"));
-			}
-		}
+		public StreamDesc Descriptor =>
+			Rec.descriptor;
 
 		/// <summary>
 		/// Gets the path name. This field is completely ignored by FreeType. However, it is often useful during
 		/// debugging to use it to store the stream's filename (where available).
 		/// </summary>
-		public StreamDesc PathName
-		{
-			get
-			{
-				return new StreamDesc(PInvokeHelper.AbsoluteOffsetOf<StreamRec>(Reference, "pathname"));
-			}
-		}
+		public StreamDesc PathName =>
+			Rec.pathname;
 
 		/// <summary>
 		/// Gets the stream's input function.
 		/// </summary>
-		[CLSCompliant(false)]
-		public StreamIOFunc Read
-		{
-			get
-			{
-				return rec.read;
-			}
-		}
+		public StreamIOFunc Read =>
+			Rec.Read;
 
 		/// <summary>
 		/// Gets the stream's close function.
 		/// </summary>
-		public StreamCloseFunc Close
-		{
-			get
-			{
-				return rec.close;
-			}
-		}
+		public StreamCloseFunc Close =>
+			Rec.Close;
 
 		/// <summary>
 		/// Gets the memory manager to use to preload frames. This is set internally by FreeType and shouldn't be
 		/// touched by stream implementations.
 		/// </summary>
-		public Memory Memory
-		{
-			get
-			{
-				return new Memory(PInvokeHelper.AbsoluteOffsetOf<StreamRec>(Reference, "memory"));
-			}
-		}
+		public Memory Memory =>
+			new Memory(Rec.memory);
 
 		/// <summary>
 		/// Gets the cursor. This field is set and used internally by FreeType when parsing frames.
 		/// </summary>
-		public IntPtr Cursor
-		{
-			get
-			{
-				return rec.cursor;
-			}
-		}
+		public IntPtr Cursor =>
+			Rec.cursor;
 
 		/// <summary>
 		/// Gets the limit. This field is set and used internally by FreeType when parsing frames.
 		/// </summary>
-		public IntPtr Limit
-		{
-			get
-			{
-				return rec.limit;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<StreamRec>(value);
-			}
-		}
+		public IntPtr Limit =>
+			Rec.limit;
 
 		#endregion
 
@@ -224,7 +150,7 @@ namespace SharpFont
 		/// needed within the stream.
 		/// </para><para>
 		/// In certain builds of the library, gzip compression recognition is automatically handled when calling
-		/// <see cref="Library.NewFace"/> or <see cref="Library.OpenFace"/>. This means that if no font driver is
+		/// <see cref="Face(Library, string, int)"/> or <see cref="Face(Library, OpenArgs, int)"/>. This means that if no font driver is
 		/// capable of handling the raw compressed file, the library will try to open a gzipped stream from it and
 		/// re-open the face with it.
 		/// </para><para>
@@ -258,7 +184,7 @@ namespace SharpFont
 		/// needed within the stream.
 		/// </para><para>
 		/// In certain builds of the library, LZW compression recognition is automatically handled when calling
-		/// <see cref="Library.NewFace"/> or <see cref="Library.OpenFace"/>. This means that if no font driver is
+		/// <see cref="Face(Library, string, int)"/> or <see cref="Face(Library, OpenArgs, int)"/>. This means that if no font driver is
 		/// capable of handling the raw compressed file, the library will try to open a LZW stream from it and re-open
 		/// the face with it.
 		/// </para><para>
@@ -292,7 +218,7 @@ namespace SharpFont
 		/// needed within the stream.
 		/// </para><para>
 		/// In certain builds of the library, bzip2 compression recognition is automatically handled when calling
-		/// <see cref="Library.NewFace"/> or <see cref="Library.OpenFace"/>. This means that if no font driver is
+		/// <see cref="Face(Library, string, int)"/> or <see cref="Face(Library, OpenArgs, int)"/>. This means that if no font driver is
 		/// capable of handling the raw compressed file, the library will try to open a bzip2 stream from it and
 		/// re-open the face with it.
 		/// </para><para>

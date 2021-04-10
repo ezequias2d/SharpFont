@@ -34,15 +34,16 @@ namespace SharpFont.Internal
 		internal UIntPtr size;
 		internal UIntPtr pos;
 
-		internal StreamDescRec descriptor;
-		internal StreamDescRec pathname;
-		internal StreamIOFunc read;
-		internal StreamCloseFunc close;
+		internal StreamDesc descriptor;
+		internal StreamDesc pathname;
+		internal IntPtr read;
+		internal IntPtr close;
 
 		internal IntPtr memory;
 		internal IntPtr cursor;
 		internal IntPtr limit;
 
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(StreamRec)); } }
+		public StreamIOFunc Read => Marshal.GetDelegateForFunctionPointer<StreamIOFunc>(read);
+		public StreamCloseFunc Close => Marshal.GetDelegateForFunctionPointer<StreamCloseFunc>(close);
 	}
 }

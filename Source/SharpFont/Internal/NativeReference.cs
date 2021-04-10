@@ -32,7 +32,7 @@ namespace SharpFont.Internal
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [StructLayout(LayoutKind.Sequential)]
-    public struct NativeReference<T> where T : NativeObject
+    public struct NativeReference<T> where T : INativeObject
     {
         private readonly IntPtr memoryPtr;
 

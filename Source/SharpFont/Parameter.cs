@@ -30,76 +30,38 @@ using SharpFont.Internal;
 namespace SharpFont
 {
 	/// <summary>
-	/// A simple structure used to pass more or less generic parameters to <see cref="Library.OpenFace"/>.
+	/// A simple structure used to pass more or less generic parameters to <see cref="Face(Library, OpenArgs, int)"/>.
 	/// </summary>
 	/// <remarks>
 	/// The ID and function of parameters are driver-specific. See the various <see cref="ParamTag"/> flags for more
 	/// information.
 	/// </remarks>
-	public sealed class Parameter
+	public sealed class Parameter : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private ParameterRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal Parameter(IntPtr reference)
+		internal Parameter(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
+			
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ParameterRec Rec => PInvokeHelper.PtrToRefStructure<ParameterRec>(Reference);
+
 		/// <summary>
 		/// Gets a four-byte identification tag.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ParamTag Tag
-		{
-			get
-			{
-				return (ParamTag)rec.tag;
-			}
-		}
+		public ParamTag Tag => (ParamTag)Rec.tag;
 
 		/// <summary>
 		/// Gets a pointer to the parameter data.
 		/// </summary>
-		public IntPtr Data
-		{
-			get
-			{
-				return rec.data;
-			}
-		}
+		public IntPtr Data => Rec.data;
 
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<ParameterRec>(reference);
-			}
-		}
-
-		internal ParameterRec Record
-		{
-			get
-			{
-				return rec;
-			}
-		}
+		internal ParameterRec Record => Rec;
 
 		#endregion
 	}

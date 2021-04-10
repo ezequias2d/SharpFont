@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 
 namespace SharpFont.Cache
@@ -30,11 +31,23 @@ namespace SharpFont.Cache
 	/// A handle to an glyph image cache object. They are designed to hold many distinct glyph images while not
 	/// exceeding a certain memory threshold.
 	/// </summary>
-	public class ImageCache
+	public class ImageCache : NativeObject
 	{
+		#region static
+		private static IntPtr NewImageCache(Manager manager)
+		{
+			if (manager == null)
+				throw new ArgumentNullException(nameof(manager));
+
+			Error err = FT.FTC_ImageCache_New(manager.Reference, out var cacheRef);
+			if (err != Error.Ok)
+				throw new FreeTypeException(err);
+
+			return cacheRef;
+		}
+		#endregion
 		#region Fields
 
-		private IntPtr reference;
 		private Manager parentManager;
 
 		#endregion
@@ -45,42 +58,9 @@ namespace SharpFont.Cache
 		/// Initializes a new instance of the <see cref="ImageCache"/> class.
 		/// </summary>
 		/// <param name="manager">The parent manager for the image cache.</param>
-		public ImageCache(Manager manager)
+		public ImageCache(Manager manager) : base(NewImageCache(manager))
 		{
-			if (manager == null)
-				throw new ArgumentNullException("manager");
-
-			IntPtr cacheRef;
-			Error err = FT.FTC_ImageCache_New(manager.Reference, out cacheRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
 			parentManager = manager;
-			Reference = cacheRef;
-		}
-
-		#endregion
-
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (parentManager.IsDisposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (parentManager.IsDisposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				reference = value;
-			}
 		}
 
 		#endregion
@@ -109,14 +89,12 @@ namespace SharpFont.Cache
 		/// note below).
 		/// </param>
 		/// <returns>The corresponding <see cref="Glyph"/> object. 0 in case of failure.</returns>
-		[CLSCompliant(false)]
 		public Glyph Lookup(ImageType type, uint gIndex, out Node node)
 		{
 			if (parentManager.IsDisposed)
 				throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
 
-			IntPtr glyphRef, nodeRef;
-			Error err = FT.FTC_ImageCache_Lookup(Reference, type.Reference, gIndex, out glyphRef, out nodeRef);
+			Error err = FT.FTC_ImageCache_Lookup(Reference, type.Reference, gIndex, out var glyphRef, out var nodeRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -152,14 +130,12 @@ namespace SharpFont.Cache
 		/// note below).
 		/// </param>
 		/// <returns>The corresponding <see cref="Glyph"/> object. 0 in case of failure.</returns>
-		[CLSCompliant(false)]
 		public Glyph LookupScaler(Scaler scaler, LoadFlags loadFlags, uint gIndex, out Node node)
 		{
 			if (parentManager.IsDisposed)
 				throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
 
-			IntPtr glyphRef, nodeRef;
-			Error err = FT.FTC_ImageCache_LookupScaler(Reference, scaler.Reference, loadFlags, gIndex, out glyphRef, out nodeRef);
+			Error err = FT.FTC_ImageCache_LookupScaler(Reference, scaler.Reference, loadFlags, gIndex, out var glyphRef, out var nodeRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);

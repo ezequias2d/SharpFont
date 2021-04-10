@@ -53,7 +53,7 @@ namespace SharpFont.Internal
 		internal int num_charmaps;
 		internal IntPtr charmaps;
 
-		internal GenericRec generic;
+		internal Generic generic;
 
 		internal BBox bbox;
 
@@ -77,11 +77,12 @@ namespace SharpFont.Internal
 		private IntPtr stream;
 
 		private IntPtr sizes_list;
-		private GenericRec autohint;
+		private Generic autohint;
 		private IntPtr extensions;
 
 		private IntPtr @internal;
 
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(FaceRec)); } }
+		internal string FamilyName => Marshal.PtrToStringAnsi(family_name);
+		internal string StyleName => Marshal.PtrToStringAnsi(style_name);
 	}
 }

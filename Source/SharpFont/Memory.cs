@@ -65,11 +65,6 @@ namespace SharpFont
 	/// </summary>
 	public class Memory: NativeObject
 	{
-		#region Fields
-
-		private MemoryRec rec;
-
-		#endregion
 
 		#region Constructors
 
@@ -81,63 +76,27 @@ namespace SharpFont
 
 		#region Properties
 
+		private ref MemoryRec Rec => ref PInvokeHelper.PtrToRefStructure<MemoryRec>(Reference);
+
 		/// <summary>
 		/// Gets a generic typeless pointer for user data.
 		/// </summary>
-		public IntPtr User
-		{
-			get
-			{
-				return rec.user;
-			}
-		}
+		public IntPtr User => Rec.user;
 
 		/// <summary>
 		/// Gets a pointer type to an allocation function.
 		/// </summary>
-		public AllocFunc Allocate
-		{
-			get
-			{
-				return rec.alloc;
-			}
-		}
+		public AllocFunc Allocate => Rec.Alloc;
 
 		/// <summary>
 		/// Gets a pointer type to an memory freeing function.
 		/// </summary>
-		public FreeFunc Free
-		{
-			get
-			{
-				return rec.free;
-			}
-		}
+		public FreeFunc Free => Rec.Free;
 
 		/// <summary>
 		/// Gets a pointer type to a reallocation function.
 		/// </summary>
-		public ReallocFunc Reallocate
-		{
-			get
-			{
-				return rec.realloc;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<MemoryRec>(value);
-			}
-		}
+		public ReallocFunc Reallocate => Rec.Realloc;
 
 		#endregion
 

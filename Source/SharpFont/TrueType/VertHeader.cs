@@ -24,7 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
+using SharpFont.Internal;
 using SharpFont.TrueType.Internal;
 
 namespace SharpFont.TrueType
@@ -40,36 +40,25 @@ namespace SharpFont.TrueType
 	/// This ensures that a single function in the ‘ttload’ module is able to read both the horizontal and vertical
 	/// headers.
 	/// </para></remarks>
-	public class VertHeader
+	public class VertHeader :  NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private VertHeaderRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal VertHeader(IntPtr reference)
+		internal VertHeader(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref VertHeaderRec Rec => ref PInvokeHelper.PtrToRefStructure<VertHeaderRec>(Reference);
+
 		/// <summary>
 		/// Gets the table version.
 		/// </summary>
-		public int Version
-		{
-			get
-			{
-				return (int)rec.Version;
-			}
-		}
+		public int Version => (int)Rec.Version;
 
 		/// <summary><para>
 		/// Gets the font's ascender, i.e., the distance from the baseline to the top-most of all glyph points found in
@@ -80,13 +69,7 @@ namespace SharpFont.TrueType
 		/// </para><para>
 		/// You should use the ‘sTypoAscender’ field of the OS/2 table instead if you want the correct one.
 		/// </para></summary>
-		public short Ascender
-		{
-			get
-			{
-				return rec.Ascender;
-			}
-		}
+		public short Ascender => Rec.Ascender;
 
 		/// <summary><para>
 		/// Gets the font's descender, i.e., the distance from the baseline to the bottom-most of all glyph points
@@ -97,176 +80,75 @@ namespace SharpFont.TrueType
 		/// </para><para>
 		/// You should use the ‘sTypoDescender’ field of the OS/2 table instead if you want the correct one.
 		/// </para></summary>
-		public short Descender
-		{
-			get
-			{
-				return rec.Descender;
-			}
-		}
+		public short Descender => Rec.Descender;
 
 		/// <summary>
 		/// Gets the font's line gap, i.e., the distance to add to the ascender and descender to get the BTB, i.e., the
 		/// baseline-to-baseline distance for the font.
 		/// </summary>
-		public short LineGap
-		{
-			get
-			{
-				return rec.Line_Gap;
-			}
-		}
+		public short LineGap => Rec.Line_Gap;
 
 		/// <summary>
 		/// Gets the maximum of all advance heights found in the font. It can be used to compute the maximum height of
 		/// an arbitrary string of text.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort AdvanceHeightMax
-		{
-			get
-			{
-				return rec.advance_Height_Max;
-			}
-		}
+		public ushort AdvanceHeightMax => Rec.advance_Height_Max;
 
 		/// <summary>
 		/// Gets the minimum top side bearing of all glyphs within the font.
 		/// </summary>
-		public short MinimumTopSideBearing
-		{
-			get
-			{
-				return rec.min_Top_Side_Bearing;
-			}
-		}
+		public short MinimumTopSideBearing => Rec.min_Top_Side_Bearing;
 
 		/// <summary>
 		/// Gets the minimum bottom side bearing of all glyphs within the font.
 		/// </summary>
-		public short MinimumBottomSideBearing
-		{
-			get
-			{
-				return rec.min_Bottom_Side_Bearing;
-			}
-		}
+		public short MinimumBottomSideBearing => Rec.min_Bottom_Side_Bearing;
 
 		/// <summary>
 		/// Gets the maximum vertical extent (i.e., the ‘height’ of a glyph's bounding box) for all glyphs in the font.
 		/// </summary>
-		public short MaximumExtentY
-		{
-			get
-			{
-				return rec.yMax_Extent;
-			}
-		}
+		public short MaximumExtentY => Rec.yMax_Extent;
 
 		/// <summary>
 		/// Gets the rise coefficient of the cursor's slope of the cursor (slope=rise/run).
 		/// </summary>
-		public short CaretSlopeRise
-		{
-			get
-			{
-				return rec.caret_Slope_Rise;
-			}
-		}
+		public short CaretSlopeRise => Rec.caret_Slope_Rise;
 
 		/// <summary>
 		/// Gets the run coefficient of the cursor's slope.
 		/// </summary>
-		public short CaretSlopeRun
-		{
-			get
-			{
-				return rec.caret_Slope_Run;
-			}
-		}
+		public short CaretSlopeRun => Rec.caret_Slope_Run;
 
 		/// <summary>
 		/// Gets the amount of space needed to offset the caret for best appearance. Applies to slanted fonts.
 		/// For non-slanted fonts, set this to 0.
 		/// </summary>
-		public short CaretOffset
-		{
-			get
-			{
-				return rec.caret_Offset;
-			}
-		}
+		public short CaretOffset => Rec.caret_Offset;
 
 		/// <summary>
 		/// Gets the 8 reserved bytes.
 		/// </summary>
-		public short[] Reserved
-		{
-			get
-			{
-				return rec.Reserved;
-			}
-		}
-
+		public ReadOnlySpan<short> Reserved => Rec.Reserved;
 		/// <summary>
 		/// Gets 0, always.
 		/// </summary>
-		public short MetricDataFormat
-		{
-			get
-			{
-				return rec.metric_Data_Format;
-			}
-		}
+		public short MetricDataFormat => Rec.metric_Data_Format;
 
 		/// <summary>
 		/// Gets the number of VMetrics entries in the ‘vmtx’ table -- this value can be smaller than the total number
 		/// of glyphs in the font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort VMetricsCount
-		{
-			get
-			{
-				return rec.number_Of_VMetrics;
-			}
-		}
+		public ushort VMetricsCount => Rec.number_Of_VMetrics;
 
 		/// <summary>
 		/// Gets a pointer into the ‘vmtx’ table.
 		/// </summary>
-		public IntPtr LongMetrics
-		{
-			get
-			{
-				return rec.long_metrics;
-			}
-		}
+		public IntPtr LongMetrics => Rec.long_metrics;
 
 		/// <summary>
 		/// Gets a pointer into the ‘vmtx’ table.
 		/// </summary>
-		public IntPtr ShortMetrics
-		{
-			get
-			{
-				return rec.short_metrics;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<VertHeaderRec>(reference);
-			}
-		}
+		public IntPtr ShortMetrics => Rec.short_metrics;
 
 		#endregion
 	}

@@ -46,5 +46,15 @@ namespace SharpFont.Internal
 		internal IntPtr vertBearingX;
 		internal IntPtr vertBearingY;
 		internal IntPtr vertAdvance;
+
+		public Fixed26Dot6 Width => Fixed26Dot6.FromRawValue((int)width);
+		public Fixed26Dot6 Height => Fixed26Dot6.FromRawValue((int)width);
+		public Fixed26Dot6 HorizontalBearingX => Fixed26Dot6.FromRawValue((int)horiBearingX);
+		public Fixed26Dot6 HorizontalBearingY => Fixed26Dot6.FromRawValue((int)horiBearingY);
+
+		public Fixed26Dot6 HorizontalAdvance => Fixed26Dot6.FromRawValue((int)horiAdvance);
+		public Fixed26Dot6 VerticalBearingX => Fixed26Dot6.FromRawValue((int)vertBearingX);
+		public Fixed26Dot6 VerticalBearingY => Fixed26Dot6.FromRawValue((int)vertBearingY);
+		public Fixed26Dot6 VerticalAdvance => Fixed26Dot6.FromRawValue((int)vertAdvance);
 	}
 }

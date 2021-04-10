@@ -30,26 +30,38 @@ namespace SharpFont.PostScript.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct FaceInfoRec
 	{
-		[MarshalAs(UnmanagedType.LPStr)]
-		internal string cid_font_name;
+		internal IntPtr cid_font_name;
 		internal IntPtr cid_version;
 		internal int cid_font_type;
 
-		[MarshalAs(UnmanagedType.LPStr)]
-		internal string registry;
+		internal IntPtr registry;
 
-		[MarshalAs(UnmanagedType.LPStr)]
-		internal string ordering;
+		internal IntPtr ordering;
 		internal int supplement;
 
-		internal FontInfoRec font_info;
+		internal FontInfo font_info;
 		internal BBox font_bbox;
 		internal UIntPtr uid_base;
 
 		internal int num_xuid;
-
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-		internal UIntPtr[] xuid;
+		#region xuid
+		internal UIntPtr xuid1;
+		internal UIntPtr xuid2;
+		internal UIntPtr xuid3;
+		internal UIntPtr xuid4;
+		internal UIntPtr xuid5;
+		internal UIntPtr xuid6;
+		internal UIntPtr xuid7;
+		internal UIntPtr xuid8;
+		internal UIntPtr xuid9;
+		internal UIntPtr xuid10;
+		internal UIntPtr xuid11;
+		internal UIntPtr xuid12;
+		internal UIntPtr xuid13;
+		internal UIntPtr xuid14;
+		internal UIntPtr xuid15;
+		internal UIntPtr xuid16;
+		#endregion
 
 		internal UIntPtr cidmap_offset;
 		internal int fd_bytes;
@@ -60,5 +72,10 @@ namespace SharpFont.PostScript.Internal
 		internal IntPtr font_dicts;
 
 		internal UIntPtr data_offset;
+
+		public string CidFontName => Marshal.PtrToStringAnsi(cid_font_name);
+		public string CidVersion => Marshal.PtrToStringAnsi(cid_version);
+		public string Registry => Marshal.PtrToStringAnsi(registry);
+		public string Ordering => Marshal.PtrToStringAnsi(ordering);
 	}
 }

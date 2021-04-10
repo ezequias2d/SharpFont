@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
+using SharpFont.Internal;
 using System;
 using System.Runtime.InteropServices;
 
@@ -32,11 +33,23 @@ namespace SharpFont.Cache
 	/// anti-aliased pixmaps) in a much more efficient way than the traditional glyph image cache implemented by
 	/// <see cref="ImageCache"/>.
 	/// </summary>
-	public class SBitCache
+	public class SBitCache : NativeObject
 	{
+		#region static
+		private static IntPtr NewSBitCache(Manager manager)
+		{
+			if (manager == null)
+				throw new ArgumentNullException("manager");
+
+			Error err = FT.FTC_SBitCache_New(manager.Reference, out var cacheRef);
+			if (err != Error.Ok)
+				throw new FreeTypeException(err);
+
+			return cacheRef;
+		}
+		#endregion
 		#region Fields
 
-		private IntPtr reference;
 		private Manager parentManager;
 
 		#endregion
@@ -47,36 +60,9 @@ namespace SharpFont.Cache
 		/// Initializes a new instance of the <see cref="SBitCache"/> class.
 		/// </summary>
 		/// <param name="manager">A handle to the source cache manager.</param>
-		public SBitCache(Manager manager)
+		public SBitCache(Manager manager) : base(NewSBitCache(manager))
 		{
-			if (manager == null)
-				throw new ArgumentNullException("manager");
-
-			IntPtr cacheRef;
-			Error err = FT.FTC_SBitCache_New(manager.Reference, out cacheRef);
-
-			if (err != Error.Ok)
-				throw new FreeTypeException(err);
-
-			Reference = cacheRef;
 			parentManager = manager;
-		}
-
-		#endregion
-
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
 		}
 
 		#endregion
@@ -109,7 +95,6 @@ namespace SharpFont.Cache
 		/// note below).
 		/// </param>
 		/// <returns>A handle to a small bitmap descriptor.</returns>
-		[CLSCompliant(false)]
 		public SBit Lookup(ImageType type, uint gIndex, out Node node)
 		{
 			if (parentManager.IsDisposed)
@@ -152,7 +137,6 @@ namespace SharpFont.Cache
 		/// note below).
 		/// </param>
 		/// <returns>A handle to a small bitmap descriptor.</returns>
-		[CLSCompliant(false)]
 		public SBit LookupScaler(Scaler scaler, LoadFlags loadFlags, uint gIndex, out Node node)
 		{
 			if (parentManager.IsDisposed)

@@ -40,7 +40,7 @@ namespace SharpFont.Internal
 		internal IntPtr face;
 		internal IntPtr next;
 		internal uint reserved;
-		internal GenericRec generic;
+		internal Generic generic;
 
 		internal GlyphMetricsRec metrics;
 		internal IntPtr linearHoriAdvance;
@@ -67,5 +67,8 @@ namespace SharpFont.Internal
 		internal IntPtr other;
 
 		private IntPtr @internal;
+
+		public Fixed16Dot16 LinearHorizontalAdvance => Fixed16Dot16.FromRawValue((int)linearHoriAdvance);
+		public Fixed16Dot16 LinearVerticalAdvance => Fixed16Dot16.FromRawValue((int)linearVertAdvance);
 	}
 }

@@ -30,10 +30,8 @@ namespace SharpFont.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct SpanRec
 	{
-		internal short x;
-		internal ushort len;
-		internal byte coverage;
-
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(SpanRec)); } }
+		internal short X;
+		internal ushort Length;
+		internal byte Coverage;
 	}
 }

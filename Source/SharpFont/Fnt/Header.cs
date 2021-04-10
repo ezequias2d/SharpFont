@@ -25,6 +25,7 @@ SOFTWARE.*/
 using System;
 
 using SharpFont.Fnt.Internal;
+using SharpFont.Internal;
 
 namespace SharpFont.Fnt
 {
@@ -67,8 +68,6 @@ namespace SharpFont.Fnt
 	/// <summary>
 	/// Provides flags for font proportions and color.
 	/// </summary>
-	[Flags]
-	[CLSCompliant(false)]
 	public enum Flags : ushort
 	{
 		/// <summary>
@@ -115,300 +114,153 @@ namespace SharpFont.Fnt
 	/// <summary>
 	/// Windows FNT Header info.
 	/// </summary>
-	public class Header
+	public class Header : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private HeaderRec rec;
-
-		#endregion
 
 		#region Constructors
 
-		internal Header(IntPtr reference)
+		internal Header(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref HeaderRec Rec => ref PInvokeHelper.PtrToRefStructure<HeaderRec>(Reference);
+
 		/// <summary>
 		/// Gets the version format of the file (e.g. 0x0200).
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort Version
-		{
-			get
-			{
-				return rec.version;
-			}
-		}
+		public ushort Version => Rec.version;
 
 		/// <summary>
 		/// Gets the size of the file in bytes.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint FileSize
-		{
-			get
-			{
-				return (uint)rec.file_size;
-			}
-		}
+		public uint FileSize => (uint)Rec.file_size;
 
 		/// <summary>
 		/// Gets the copyright text.
 		/// Limited to 60 bytes.
 		/// </summary>
-		public byte[] Copyright
+		public ReadOnlySpan<byte> Copyright
 		{
 			get
 			{
-				return rec.copyright;
+				unsafe
+				{
+					var ptr = (HeaderRec*)Reference;
+					return new ReadOnlySpan<byte>(&ptr->copyright, HeaderRec.CopyrightSize);
+				}
 			}
 		}
 
 		/// <summary>
 		/// Gets the filetype (vector or bitmap). This is exclusively for GDI use.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort FileType
-		{
-			get
-			{
-				return rec.file_type;
-			}
-		}
+		public ushort FileType => Rec.file_type;
 
 		/// <summary>
 		/// Gets the nominal point size determined by the designer at which the font looks
 		/// best.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort NominalPointSize
-		{
-			get
-			{
-				return rec.nominal_point_size;
-			}
-		}
+		public ushort NominalPointSize => Rec.nominal_point_size;
 
 		/// <summary>
 		/// Gets the nominal vertical resolution in dots per inch.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort VerticalResolution
-		{
-			get
-			{
-				return rec.vertical_resolution;
-			}
-		}
+		public ushort VerticalResolution => Rec.vertical_resolution;
 
 		/// <summary>
 		/// Gets the nominal horizontal resolution in dots per inch.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort HorizontalResolution
-		{
-			get
-			{
-				return rec.horizontal_resolution;
-			}
-		}
+		public ushort HorizontalResolution => Rec.horizontal_resolution;
 
 		/// <summary>
 		/// Gets the height of the font's ascent from the baseline.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort Ascent
-		{
-			get
-			{
-				return rec.ascent;
-			}
-		}
+		public ushort Ascent => Rec.ascent;
 
 		/// <summary>
 		/// Gets the amount of leading inside the bounds of <see cref="PixelHeight"/>.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort InternalLeading
-		{
-			get
-			{
-				return rec.internal_leading;
-			}
-		}
+		public ushort InternalLeading => Rec.internal_leading;
 
 		/// <summary>
 		/// Gets the amount of leading the designer recommends to be added between
 		/// rows.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort ExternalLeading
-		{
-			get
-			{
-				return rec.external_leading;
-			}
-		}
+		public ushort ExternalLeading => Rec.external_leading;
 
 		/// <summary>
 		/// Gets whether the font is italic.
 		/// </summary>
-		public bool Italic
-		{
-			get
-			{
-				return (0x01 & rec.italic) == 0x01;
-			}
-		}
+		public bool Italic => (0x01 & Rec.italic) == 0x01;
 
 		/// <summary>
 		/// Ges whether the font includes underlining.
 		/// </summary>
-		public bool Underline
-		{
-			get
-			{
-				return (0x01 & rec.underline) == 0x01;
-			}
-		}
+		public bool Underline => (0x01 & Rec.underline) == 0x01;
 
 		/// <summary>
 		/// Ges whether the font includes strikeout.
 		/// </summary>
-		public bool Strikeout
-		{
-			get
-			{
-				return (0x01 & rec.strike_out) == 0x01;
-			}
-		}
+		public bool Strikeout =>(0x01 & Rec.strike_out) == 0x01;
 
 		/// <summary>
 		/// Gets the weight of characters on a scale of 1 to 1000, with
 		/// 400 being regular weight.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort Weight
-		{
-			get
-			{
-				return rec.weight;
-			}
-		}
+		public ushort Weight => Rec.weight;
 
 		/// <summary>
 		/// Gets the character set specified by the font.
 		/// </summary>
-		public byte Charset
-		{
-			get
-			{
-				return rec.charset;
-			}
-		}
+		public byte Charset => Rec.charset;
 
 		/// <summary>
 		/// Gets the width of the vector grid (vector fonts). For raster fonts,
 		/// a zero value indicates that characters have variables widths,
 		/// otherwise, the value is the width of the bitmap for all characters.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort PixelWidth
-		{
-			get
-			{
-				return rec.pixel_width;
-			}
-		}
+		public ushort PixelWidth => Rec.pixel_width;
 
 		/// <summary>
 		/// Gets the height of the vector grid (vector fonts) or the height
 		/// of the bitmap for all characters (raster fonts).
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort PixelHeight
-		{
-			get
-			{
-				return rec.pixel_height;
-			}
-		}
+		public ushort PixelHeight => Rec.pixel_height;
 
 		/// <summary>
 		/// Gets whether the font is variable pitch.
 		/// </summary>
-		public byte PitchAndFamily
-		{
-			get
-			{
-				return rec.pitch_and_family;
-			}
-		}
+		public byte PitchAndFamily => Rec.pitch_and_family;
 
 		/// <summary>
 		/// Gets the width of characters in the font, based on the width of 'X'.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort AverageWidth
-		{
-			get
-			{
-				return rec.avg_width;
-			}
-		}
+		public ushort AverageWidth => Rec.avg_width;
 
 		/// <summary>
 		/// Gets the maximum width of all characters in the font.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort MaximumWidth
-		{
-			get
-			{
-				return rec.max_width;
-			}
-		}
+		public ushort MaximumWidth => Rec.max_width;
 
 		/// <summary>
 		/// Gets the first character code specified in the font.
 		/// </summary>
-		public byte FirstChar
-		{
-			get
-			{
-				return rec.first_char;
-			}
-		}
+		public byte FirstChar => Rec.first_char;
 
 		/// <summary>
 		/// Gets the last character code specified in the font.
 		/// </summary>
-		public byte LastChar
-		{
-			get
-			{
-				return rec.last_char;
-			}
-		}
+		public byte LastChar => Rec.last_char;
 
 		/// <summary>
 		/// Gets the character to substitute when a character is needed that
 		/// isn't defined in the font.
 		/// </summary>
-		public byte DefaultChar
-		{
-			get
-			{
-				return rec.default_char;
-			}
-		}
+		public byte DefaultChar => Rec.default_char;
 
 		/// <summary>
 		/// Gets the character that defines word breaks, for purposes of word
@@ -416,179 +268,82 @@ namespace SharpFont.Fnt
 		/// the <see cref="FirstChar"/>, so the character code is this value
 		/// minus <see cref="FirstChar"/>.
 		/// </summary>
-		public byte BreakChar
-		{
-			get
-			{
-				return rec.break_char;
-			}
-		}
+		public byte BreakChar => Rec.break_char;
 
 		/// <summary>
 		/// Gets the number of bytes in each row of the bitmap (raster fonts).
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort BytesPerRow
-		{
-			get
-			{
-				return rec.bytes_per_row;
-			}
-		}
+		public ushort BytesPerRow => Rec.bytes_per_row;
 
 		/// <summary>
 		/// Gets the offset in the file, in bytes, to the string that gives the device name.
 		/// The value is 0 for generic fonts.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint DeviceOffset
-		{
-			get
-			{
-				return (uint)rec.device_offset;
-			}
-		}
+		public uint DeviceOffset => (uint)Rec.device_offset;
 
 		/// <summary>
 		/// Gets the offset in the file, in bytes, to the string that gives the face name
 		/// (null-terminated).
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint FaceNameOffset
-		{
-			get
-			{
-				return (uint)rec.face_name_offset;
-			}
-		}
+		public uint FaceNameOffset => (uint)Rec.face_name_offset;
 
 		/// <summary>
 		/// Gets the absolute machine address of the bitmap,
 		/// which is set by GDI at load time.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint BitsPointer
-		{
-			get
-			{
-				return (uint)rec.bits_pointer;
-			}
-		}
+		public uint BitsPointer => (uint)Rec.bits_pointer;
 
 		/// <summary>
 		/// Gets the offset in the file, in bytes, to the beginning of the character data
 		/// (raster or vector).
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint BitsOffset
-		{
-			get
-			{
-				return (uint)rec.bits_offset;
-			}
-		}
+		public uint BitsOffset => (uint)Rec.bits_offset;
 
 		/// <summary>
 		/// Reservied.
 		/// </summary>
-		public byte Reserved
-		{
-			get
-			{
-				return rec.reserved;
-			}
-		}
+		public byte Reserved => Rec.reserved;
 
 		/// <summary>
 		/// Gets <see cref="Flags"/> that describe font proportion and color.
 		/// </summary>
-		[CLSCompliant(false)]
-		public Flags Flags
-		{
-			get
-			{
-				return (Flags)rec.flags;
-			}
-		}
+		public Flags Flags => (Flags)Rec.flags;
 
 		/// <summary>
 		/// ASpace has not been used since before Windows 3.0.
 		/// Set it to 0 for compatibility.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort ASpace
-		{
-			get
-			{
-				return rec.A_space;
-			}
-		}
+		public ushort ASpace => Rec.A_space;
 
 		/// <summary>
 		/// BSpace has not been used since before Windows 3.0.
 		/// Set it to 0 for compatibility.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort BSpace
-		{
-			get
-			{
-				return rec.B_space;
-			}
-		}
+		public ushort BSpace => Rec.B_space;
 
 		/// <summary>
 		/// CSpace has not been used since before Windows 3.0.
 		/// Set it to 0 for compatibility.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort CSpace
-		{
-			get
-			{
-				return rec.C_space;
-			}
-		}
+		public ushort CSpace => Rec.C_space;
 
 		/// <summary>
 		/// Gets the offset of the color table.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort ColorTableOffset
-		{
-			get
-			{
-				return rec.color_table_offset;
-			}
-		}
+		public ushort ColorTableOffset => Rec.color_table_offset;
 
 		/// <summary>
 		/// This field is reserved.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint[] Reserved1
+		public ReadOnlySpan<IntPtr> Reserved1
 		{
 			get
 			{
-				uint[] reserved1 = new uint[rec.reserved1.Length];
-				for (int i = 0; i < reserved1.Length; i++)
-					reserved1[i] = (uint)rec.reserved1[i];
-
-				return reserved1;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<HeaderRec>(reference);
+				unsafe
+				{
+					var ptr = (HeaderRec*)Reference;
+					return new ReadOnlySpan<IntPtr>(&ptr->reserved1, 4);
+				}
 			}
 		}
 

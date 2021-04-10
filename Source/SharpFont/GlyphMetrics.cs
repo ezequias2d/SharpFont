@@ -38,142 +38,69 @@ namespace SharpFont
 	/// If not disabled with <see cref="LoadFlags.NoHinting"/>, the values represent dimensions of the hinted glyph (in
 	/// case hinting is applicable). 
 	/// </remarks>
-	public sealed class GlyphMetrics
+	public sealed class GlyphMetrics : NativeObject
 	{
-		#region Fields
-
-		private IntPtr reference;
-		private GlyphMetricsRec rec;
-
-		#endregion
-
 		#region Constructors
 
-		internal GlyphMetrics(IntPtr reference)
+		internal GlyphMetrics(IntPtr reference) : base(reference)
 		{
-			Reference = reference;
-		}
-
-		internal GlyphMetrics(GlyphMetricsRec glyphMetInt)
-		{
-			this.rec = glyphMetInt;
 		}
 
 		#endregion
 
 		#region Properties
 
+		private ref GlyphMetricsRec Rec => ref PInvokeHelper.PtrToRefStructure<GlyphMetricsRec>(Reference);
+
 		/// <summary>
 		/// Gets the glyph's width. If getting metrics from a face loaded with <see cref="LoadFlags.NoScale"/>, call
 		/// <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 Width
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.width);
-			}
-		}
+		public Fixed26Dot6 Width => Rec.Width;
 
 		/// <summary>
 		/// Gets the glyph's height. If getting metrics from a face loaded with <see cref="LoadFlags.NoScale"/>, call
 		/// <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 Height
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.height);
-			}
-		}
+		public Fixed26Dot6 Height => Rec.Height;
 
 		/// <summary>
 		/// Gets the left side bearing for horizontal layout. If getting metrics from a face loaded with
 		/// <see cref="LoadFlags.NoScale"/>, call <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 HorizontalBearingX
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.horiBearingX);
-			}
-		}
+		public Fixed26Dot6 HorizontalBearingX => Rec.HorizontalBearingX;
 
 		/// <summary>
 		/// Gets the top side bearing for horizontal layout. If getting metrics from a face loaded with
 		/// <see cref="LoadFlags.NoScale"/>, call <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 HorizontalBearingY
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.horiBearingY);
-			}
-		}
+		public Fixed26Dot6 HorizontalBearingY => Rec.HorizontalBearingY;
 
 		/// <summary>
 		/// Gets the advance width for horizontal layout. If getting metrics from a face loaded with
 		/// <see cref="LoadFlags.NoScale"/>, call <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 HorizontalAdvance
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.horiAdvance);
-			}
-		}
+		public Fixed26Dot6 HorizontalAdvance => Rec.HorizontalAdvance;
 
 		/// <summary>
 		/// Gets the left side bearing for vertical layout. If getting metrics from a face loaded with
 		/// <see cref="LoadFlags.NoScale"/>, call <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 VerticalBearingX
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.vertBearingX);
-			}
-		}
+		public Fixed26Dot6 VerticalBearingX => Rec.VerticalBearingX;
 
 		/// <summary>
 		/// Gets the top side bearing for vertical layout. Larger positive values mean further below the vertical glyph
 		/// origin. If getting metrics from a face loaded with <see cref="LoadFlags.NoScale"/>, call
 		/// <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 VerticalBearingY
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.vertBearingY);
-			}
-		}
+		public Fixed26Dot6 VerticalBearingY => Rec.VerticalBearingY;
 
 		/// <summary>
 		/// Gets the advance height for vertical layout. Positive values mean the glyph has a positive advance
 		/// downward. If getting metrics from a face loaded with <see cref="LoadFlags.NoScale"/>, call
 		/// <see cref="Fixed26Dot6.Value"/> to get the unscaled value.
 		/// </summary>
-		public Fixed26Dot6 VerticalAdvance
-		{
-			get
-			{
-				return Fixed26Dot6.FromRawValue((int)rec.vertAdvance);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<GlyphMetricsRec>(reference);
-			}
-		}
+		public Fixed26Dot6 VerticalAdvance => Rec.VerticalAdvance;
 
 		#endregion
 	}

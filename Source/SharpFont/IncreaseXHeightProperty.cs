@@ -72,7 +72,6 @@ namespace SharpFont
 		/// <summary>
 		/// Gets or sets the limit property.
 		/// </summary>
-		[CLSCompliant(false)]
 		public uint Limit
 		{
 			get

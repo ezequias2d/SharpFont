@@ -33,7 +33,5 @@ namespace SharpFont.Internal
 		internal IntPtr prev;
 		internal IntPtr next;
 		internal IntPtr data;
-
-		internal static int SizeInBytes { get { return Marshal.SizeOf(typeof(ListNodeRec)); } }
 	}
 }
