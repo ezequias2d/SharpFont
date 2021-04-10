@@ -44,17 +44,12 @@ namespace SharpFont
 	/// </para></remarks>
 	public class OutlineGlyph : DisposableNativeObject
 	{
-		#region Fields
-
-		private Glyph _original;
-
-		#endregion
-
 		#region Constructors
 
 		internal OutlineGlyph(Glyph original) : base(original.Reference)
 		{
-			_original.DisposeEvent += (disposing) =>
+			Root = original;
+			Root.DisposeEvent += (disposing) =>
 			{
 				ForceDisposeState();
 			};
@@ -69,16 +64,7 @@ namespace SharpFont
 		/// <summary>
 		/// Gets the root <see cref="Glyph"/> fields.
 		/// </summary>
-		public Glyph Root
-		{
-			get
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
-
-				return _original;
-			}
-		}
+		public Glyph Root { get; }
 
 		/// <summary>
 		/// Gets a descriptor for the outline.
@@ -105,11 +91,7 @@ namespace SharpFont
 		/// </summary>
 		/// <param name="g">A <see cref="OutlineGlyph"/>.</param>
 		/// <returns>A <see cref="Glyph"/>.</returns>
-		public static implicit operator Glyph(OutlineGlyph g)
-		{
-			return g._original;
-		}
-
+		public static implicit operator Glyph(OutlineGlyph g) => g.Root;
 		#endregion
 
 		#region Methods
@@ -117,7 +99,7 @@ namespace SharpFont
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
-				_original.Dispose();
+				Root.Dispose();
 		}
 
 		#endregion
