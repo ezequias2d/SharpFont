@@ -40,20 +40,18 @@ namespace SharpFont.TrueType
 	/// <see cref="AppleEncodingId"/>
 	/// <see cref="MacEncodingId"/>
 	/// <see cref="MicrosoftEncodingId"/>
-	public class SfntName
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SfntName
 	{
 		#region Fields
 
-		private SfntNameRec rec;
+		internal PlatformId platform_id;
+		internal ushort encoding_id;
+		internal ushort language_id;
+		internal ushort name_id;
 
-		#endregion
-
-		#region Constructors
-
-		internal SfntName(SfntNameRec rec)
-		{
-			this.rec = rec;
-		}
+		internal IntPtr @string;
+		internal uint string_len;
 
 		#endregion
 
@@ -62,75 +60,27 @@ namespace SharpFont.TrueType
 		/// <summary>
 		/// Gets the platform ID for ‘string’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public PlatformId PlatformId
-		{
-			get
-			{
-				return rec.platform_id;
-			}
-		}
+		public PlatformId PlatformId => platform_id;
 
 		/// <summary>
 		/// Gets the encoding ID for ‘string’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort EncodingId
-		{
-			get
-			{
-				return rec.encoding_id;
-			}
-		}
+		public ushort EncodingId => encoding_id;
 
 		/// <summary>
 		/// Gets the language ID for ‘string’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort LanguageId
-		{
-			get
-			{
-				return rec.language_id;
-			}
-		}
+		public ushort LanguageId => language_id;
 
 		/// <summary>
 		/// Gets an identifier for ‘string’.
 		/// </summary>
-		[CLSCompliant(false)]
-		public ushort NameId
-		{
-			get
-			{
-				return rec.name_id;
-			}
-		}
+		public ushort NameId => name_id;
 
 		/// <summary>
-		/// This property returns <see cref="StringPtr"/> interpreted as UTF-16.
+		/// This property returns <see cref="StringPtr"/> interpreted as automatically by Marsha.PtrToStringAuto.
 		/// </summary>
-		public string String
-		{
-			get
-			{
-				//TODO it may be possible to consolidate all of these properties
-				//if the strings follow some sane structure. Otherwise, leave
-				//them or add more overloads for common encodings like UTF-8.
-				return Marshal.PtrToStringUni(rec.@string, (int) Math.Ceiling(rec.string_len/2.0));
-			}
-		}
-
-		/// <summary>
-		/// This property returns <see cref="StringPtr"/> interpreted as ANSI.
-		/// </summary>
-		public string StringAnsi
-		{
-			get
-			{
-				return Marshal.PtrToStringAnsi(rec.@string, (int)rec.string_len);
-			}
-		}
+		public string String => Marshal.PtrToStringAuto(@string, (int)string_len);
 
 		/// <summary><para>
 		/// Gets the ‘name’ string. Note that its format differs depending on the (platform,encoding) pair. It can be a
@@ -139,13 +89,7 @@ namespace SharpFont.TrueType
 		/// Generally speaking, the string is not zero-terminated. Please refer to the TrueType specification for
 		/// details.
 		/// </para></summary>
-		public IntPtr StringPtr
-		{
-			get
-			{
-				return rec.@string;
-			}
-		}
+		public IntPtr StringPtr => @string;
 
 		#endregion
 	}

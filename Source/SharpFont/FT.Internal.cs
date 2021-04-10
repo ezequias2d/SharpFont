@@ -352,7 +352,7 @@ namespace SharpFont
 		internal static extern uint FT_Get_Sfnt_Name_Count(IntPtr face);
 
 		[DllImport(FreetypeDll, CallingConvention = CallConvention)]
-		internal static extern Error FT_Get_Sfnt_Name(IntPtr face, uint idx, out TrueType.Internal.SfntNameRec aname);
+		internal static extern Error FT_Get_Sfnt_Name(IntPtr face, uint idx, out SfntName aname);
 
 		#endregion
 

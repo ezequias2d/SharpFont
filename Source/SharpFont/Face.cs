@@ -1629,14 +1629,12 @@ namespace SharpFont
 		/// <returns>The indexed <see cref="SfntName"/> structure.</returns>
 		public SfntName GetSfntName(uint idx)
 		{
-			TrueType.Internal.SfntNameRec nameRec;
-
-			Error err = FT.FT_Get_Sfnt_Name(Reference, idx, out nameRec);
+			Error err = FT.FT_Get_Sfnt_Name(Reference, idx, out var nameRec);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
 
-			return new SfntName(nameRec);
+			return nameRec;
 		}
 
 		#endregion
