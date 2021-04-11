@@ -254,7 +254,7 @@ namespace Examples
 				#region Kerning (for NEXT character)
 				// Calculate kern for the NEXT character (if any)
 				// The kern value adjusts the origin of the next character (positive or negative).
-				if (face.HasKerning && i < text.Length - 1)
+				if (face.FaceFlags.HasFlag(FaceFlags.Kerning) && i < text.Length - 1)
 				{
 					char cNext = text[i + 1];
 					kern = (float)face.GetKerning(glyphIndex, face.GetCharIndex(cNext), KerningMode.Default).X;
@@ -374,7 +374,7 @@ namespace Examples
 
 					#region Kerning (for NEXT character)
 					// Adjust for kerning between this character and the next.
-					if (face.HasKerning && i < text.Length - 1)
+					if (face.FaceFlags.HasFlag(FaceFlags.Kerning) && i < text.Length - 1)
 					{
 						char cNext = text[i + 1];
 						kern = (float)face.GetKerning(glyphIndex, face.GetCharIndex(cNext), KerningMode.Default).X;
