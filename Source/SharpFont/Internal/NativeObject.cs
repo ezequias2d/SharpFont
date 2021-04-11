@@ -16,6 +16,9 @@ namespace SharpFont.Internal
 			Reference = reference;
 		}
 
+		/// <summary>
+		/// A reference to the native object.
+		/// </summary>
 		public IntPtr Reference { get; }
 	}
 }
