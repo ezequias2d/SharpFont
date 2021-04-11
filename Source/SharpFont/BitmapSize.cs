@@ -44,47 +44,50 @@ namespace SharpFont
 	/// contained in the bitmap strike itself. They are computed from the
 	/// global font parameters.
 	/// </para></remarks>
-	public sealed class BitmapSize : NativeObject
+	[StructLayout(LayoutKind.Sequential)]
+	public struct BitmapSize
 	{
+		#region Fields
+		internal short height;
+		internal short width;
 
-		#region Constructors
+		internal IntPtr size;
 
-		internal BitmapSize(IntPtr reference) : base(reference)
-		{
-		}
-
+		internal IntPtr x_ppem;
+		internal IntPtr y_ppem;
 		#endregion
 
 		#region Properties
 
-		private ref BitmapSizeRec Rec => ref PInvokeHelper.PtrToRefStructure<BitmapSizeRec>(Reference);
+
+		//private ref BitmapSizeRec Rec => ref PInvokeHelper.PtrToRefStructure<BitmapSizeRec>(Reference);
 
 		/// <summary>
 		/// Gets the vertical distance, in pixels, between two consecutive
 		/// baselines. It is always positive.
 		/// </summary>
-		public short Height => Rec.height;
+		public short Height => height;
 
 		/// <summary>
 		/// Gets the average width, in pixels, of all glyphs in the strike.
 		/// </summary>
-		public short Width => Rec.width;
+		public short Width => width;
 
 		/// <summary>
 		/// Gets the nominal size of the strike in 26.6 fractional points. This
 		/// field is not very useful.
 		/// </summary>
-		public Fixed26Dot6 Size => Rec.Size;
+		public Fixed26Dot6 Size => Fixed26Dot6.FromRawValue((int)size);
 
 		/// <summary>
 		/// Gets the horizontal ppem (nominal width) in 26.6 fractional pixels.
 		/// </summary>
-		public Fixed26Dot6 NominalWidth => Rec.NominalWidth;
+		public Fixed26Dot6 NominalWidth => Fixed26Dot6.FromRawValue((int)x_ppem);
 
 		/// <summary>
 		/// Gets the vertical ppem (nominal height) in 26.6 fractional pixels.
 		/// </summary>
-		public Fixed26Dot6 NominalHeight => Rec.NominalHeight;
+		public Fixed26Dot6 NominalHeight => Fixed26Dot6.FromRawValue((int)y_ppem);
 
 		#endregion
 	}

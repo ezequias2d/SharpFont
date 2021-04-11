@@ -397,22 +397,20 @@ namespace SharpFont
 		/// Gets an array of FT_Bitmap_Size for all bitmap strikes in the face. It is set to NULL if there is no bitmap
 		/// strike.
 		/// </summary>
-		public BitmapSize[] AvailableSizes
+		public ReadOnlySpan<BitmapSize> AvailableSizes
 		{
 			get
 			{
 				int count = FixedSizesCount;
 
 				if (count == 0)
-					return null;
+					return ReadOnlySpan<BitmapSize>.Empty;
 
-				BitmapSize[] sizes = new BitmapSize[count];
-				IntPtr array = Rec.available_sizes;
-
-				for (int i = 0; i < count; i++)
-					sizes[i] = new BitmapSize(new IntPtr(array.ToInt64() + IntPtr.Size * i));
-
-				return sizes;
+				unsafe
+				{
+					var rec = (FaceRec*)Reference;
+					return new ReadOnlySpan<BitmapSize>((BitmapSize*)rec->available_sizes, count);
+				}
 			}
 		}
 
