@@ -30,7 +30,6 @@ namespace SharpFont.TrueType
 	/// A list of valid values for the ‘platform_id’ identifier code in <see cref="CharMap"/> and
 	/// <see cref="SfntName"/> structures.
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum PlatformId : ushort
 	{
 		/// <summary>

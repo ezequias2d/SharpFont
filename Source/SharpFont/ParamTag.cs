@@ -29,7 +29,6 @@ namespace SharpFont
 	/// <summary>
 	/// Constants used as the tag of <see cref="Parameter"/> structures.
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum ParamTag : uint
 	{
 		/// <summary>

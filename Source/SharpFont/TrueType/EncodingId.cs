@@ -29,7 +29,6 @@ namespace SharpFont.TrueType
 	/// <summary>
 	/// A list of valid values for the ‘encoding_id’ for TT_PLATFORM_APPLE_UNICODE charmaps and name entries.
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum AppleEncodingId : ushort
 	{
 		/// <summary>Unicode version 1.0.</summary>
@@ -54,7 +53,6 @@ namespace SharpFont.TrueType
 	/// <summary>
 	/// A list of valid values for the ‘encoding_id’ for TT_PLATFORM_MACINTOSH charmaps and name entries.
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum MacEncodingId : ushort
 	{
 		/// <summary>Roman encoding.</summary>
@@ -163,7 +161,6 @@ namespace SharpFont.TrueType
 	/// <summary>
 	/// A list of valid values for the ‘encoding_id’ for TT_PLATFORM_MICROSOFT charmaps and name entries.
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum MicrosoftEncodingId : ushort
 	{
 		/// <summary>
@@ -212,7 +209,6 @@ namespace SharpFont.TrueType
 	/// A list of valid values for the ‘encoding_id’ for TT_PLATFORM_ADOBE charmaps. This is a FreeType-specific
 	/// extension!
 	/// </summary>
-	[CLSCompliant(false)]
 	public enum AdobeEncodingId : ushort
 	{
 		/// <summary>Adobe standard encoding.</summary>
