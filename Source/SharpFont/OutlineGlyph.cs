@@ -51,6 +51,7 @@ namespace SharpFont
 			Root = original;
 			Root.DisposeEvent += (disposing) =>
 			{
+				// force the dispose state of this object when the root object is disposed.
 				ForceDisposeState();
 			};
 		}
