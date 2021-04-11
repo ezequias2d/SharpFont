@@ -31,7 +31,6 @@ namespace SharpFont
 	/// Type tables should be validated.
 	/// </summary>
 	[Flags]
-	[CLSCompliant(false)]
 	public enum TrueTypeValidationFlags : uint
 	{
 		/// <summary>Validate ‘feat’ table.</summary>

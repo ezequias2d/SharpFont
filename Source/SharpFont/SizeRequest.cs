@@ -52,86 +52,29 @@ namespace SharpFont
 		/// <summary>
 		/// Gets the type of request. See <see cref="SizeRequestType"/>.
 		/// </summary>
-		public SizeRequestType RequestType
-		{
-			get
-			{
-				return requestType;
-			}
-
-			set
-			{
-				requestType = value;
-			}
-		}
+		public SizeRequestType RequestType { get => requestType; set => requestType = value; }
 
 		/// <summary>
 		/// Gets or sets the desired width.
 		/// </summary>
-		public int Width
-		{
-			get
-			{
-				return (int)width;
-			}
-
-			set
-			{
-				width = (IntPtr)value;
-			}
-		}
+		public int Width { get => (int)width; set => width = (IntPtr)value; }
 
 		/// <summary>
 		/// Gets or sets the desired height.
 		/// </summary>
-		public int Height
-		{
-			get
-			{
-				return (int)height;
-			}
-
-			set
-			{
-				height = (IntPtr)value;
-			}
-		}
+		public int Height { get => (int)height; set => height = (IntPtr)value; }
 
 		/// <summary>
 		/// Gets or sets the horizontal resolution. If set to zero, <see cref="Width"/> is treated as a 26.6 fractional pixel
 		/// value.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint HorizontalResolution
-		{
-			get
-			{
-				return horiResolution;
-			}
-
-			set
-			{
-				horiResolution = value;
-			}
-		}
+		public uint HorizontalResolution { get => horiResolution; set => horiResolution = value; }
 
 		/// <summary>
 		/// Gets or sets the horizontal resolution. If set to zero, <see cref="Height"/> is treated as a 26.6 fractional pixel
 		/// value.
 		/// </summary>
-		[CLSCompliant(false)]
-		public uint VerticalResolution
-		{
-			get
-			{
-				return vertResolution;
-			}
-
-			set
-			{
-				vertResolution = value;
-			}
-		}
+		public uint VerticalResolution { get => vertResolution; set => vertResolution = value; }
 
 		#endregion
 
@@ -143,10 +86,7 @@ namespace SharpFont
 		/// <param name="left">A <see cref="SizeRequest"/>.</param>
 		/// <param name="right">Another <see cref="SizeRequest"/>.</param>
 		/// <returns>A value indicating equality.</returns>
-		public static bool operator ==(SizeRequest left, SizeRequest right)
-		{
-			return left.Equals(right);
-		}
+		public static bool operator ==(SizeRequest left, SizeRequest right) => left.Equals(right);
 
 		/// <summary>
 		/// Compares two <see cref="SizeRequest"/>s for inequality.
@@ -154,37 +94,27 @@ namespace SharpFont
 		/// <param name="left">A <see cref="SizeRequest"/>.</param>
 		/// <param name="right">Another <see cref="SizeRequest"/>.</param>
 		/// <returns>A value indicating inequality.</returns>
-		public static bool operator !=(SizeRequest left, SizeRequest right)
-		{
-			return !left.Equals(right);
-		}
+		public static bool operator !=(SizeRequest left, SizeRequest right) => !left.Equals(right);
 
 		/// <summary>
 		/// Compares this instance of <see cref="SizeRequest"/> to another for equality.
 		/// </summary>
 		/// <param name="other">A <see cref="SizeRequest"/>.</param>
 		/// <returns>A value indicating equality.</returns>
-		public bool Equals(SizeRequest other)
-		{
-			return requestType == other.requestType &&
+		public bool Equals(SizeRequest other) =>
+			requestType == other.requestType &&
 				width == other.width &&
 				height == other.height &&
 				horiResolution == other.horiResolution &&
 				vertResolution == other.vertResolution;
-		}
 
 		/// <summary>
 		/// Compares this instance of <see cref="SizeRequest"/> to another object for equality.
 		/// </summary>
 		/// <param name="obj">An object.</param>
 		/// <returns>A value indicating equality.</returns>
-		public override bool Equals(object obj)
-		{
-			if (obj is SizeRequest)
-				return this.Equals((SizeRequest)obj);
-			else
-				return false;
-		}
+		public override bool Equals(object obj) =>
+			obj is SizeRequest sizeRequester && Equals(sizeRequester);
 
 		/// <summary>
 		/// Gets a unique hash code for this instance.
@@ -192,9 +122,14 @@ namespace SharpFont
 		/// <returns>A unique hash code.</returns>
 		public override int GetHashCode()
 		{
-			return requestType.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ horiResolution.GetHashCode() ^ vertResolution.GetHashCode();
+			int hashCode = 2136421551;
+			hashCode = hashCode * -1521134295 + RequestType.GetHashCode();
+			hashCode = hashCode * -1521134295 + Width.GetHashCode();
+			hashCode = hashCode * -1521134295 + Height.GetHashCode();
+			hashCode = hashCode * -1521134295 + HorizontalResolution.GetHashCode();
+			hashCode = hashCode * -1521134295 + VerticalResolution.GetHashCode();
+			return hashCode;
 		}
-
 		#endregion
 	}
 }
