@@ -40,7 +40,7 @@ namespace SharpFont
 	public sealed class FTBitmap : DisposableNativeObject
 	{
 		#region static
-		public static IntPtr NewBitmap()
+		private static IntPtr NewBitmap()
 		{
 			IntPtr bitmapRef = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(BitmapRec)));
 			FT.FT_Bitmap_New(bitmapRef);
@@ -71,6 +71,7 @@ namespace SharpFont
 		internal FTBitmap(IntPtr reference, Library library) : base(reference)
 		{
 			_library = library;
+			_user = false;
 		}
 
 		#endregion
@@ -207,9 +208,9 @@ namespace SharpFont
 		/// </summary>
 		/// <remarks><para>
 		/// It is possible to call <see cref="Convert"/> multiple times without calling
-		/// <see cref="Dispose()"/> (the memory is simply reallocated).
+		/// <see cref="Dispose"/> (the memory is simply reallocated).
 		/// </para><para>
-		/// Use <see cref="Dispose()"/> to finally remove the bitmap object.
+		/// Use <see cref="Dispose"/> to finally remove the bitmap object.
 		/// </para><para>
 		/// The ‘library’ argument is taken to have access to FreeType's memory handling functions.
 		/// </para></remarks>
@@ -235,6 +236,10 @@ namespace SharpFont
 
 		#region DisposableNativeObject
 
+		/// <summary>
+		/// Dispose this bitmap.
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing)
 		{
 			if (_user)
